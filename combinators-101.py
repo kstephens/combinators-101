@@ -7,12 +7,13 @@
 
 
 # https://stackoverflow.com/questions/17077494/how-do-i-convert-a-ipython-notebook-into-a-python-file-via-commandline
-from typing import Any, Optional, Union, List, Tuple, Dict, Iterable, Mapping, Callable, Type, Literal
+from typing import Any, Optional, Union, List, Tuple, Dict, Iterable, Mapping, Callable, Type, Literal, IO
 from numbers import Number
 from collections.abc import Collection, Sequence
 from dataclasses import dataclass, field
 from pprint import pprint
 from types import FunctionType
+from io import StringIO
 import re
 import sys
 import logging
@@ -196,11 +197,21 @@ def constantly(x: Any) -> Variadic:
 
 constantly_7 = constantly(7)
 constantly_7
+
+
+# In[ ]:
+
+
 constantly_7()
+
+
+# In[ ]:
+
+
 constantly_7(13, 17)
 
 
-# ### Adapters
+# ## Adapters
 
 # ### Indexable Getters
 
@@ -247,6 +258,10 @@ s = "abcdef"
 indexed("abcdef")(4)
 at(3)(s)
 
+
+# In[ ]:
+
+
 d = {"a": 2, "b": 3}
 indexed(d)("b")
 at("b")(d)
@@ -259,36 +274,45 @@ at("b")(d)
 
 @dataclass
 class Position:
+  "A 2D position."
   x: int = 0
   y: int = 0
 
 p = Position(2, 3)
 p
 
-def getter(name: str, *default) -> Unary:
+
+# In[ ]:
+
+
+def getter(name: str, *default) -> Callable[[Any], Any]:
   return lambda obj: \
     getattr(obj, name, *default)
 
-def object_get(obj):
+def object_get(obj: Any) -> Callable[[str], Any]:
   return lambda name, *default: \
     getattr(obj, name, *default)
-
-g = getter('x')
-g(p)
-
-h = object_get(p)
-h('x')
 
 
 # In[ ]:
 
 
+g = getter('x')
+g(p)
+
+
+# In[ ]:
+
+
+h = object_get(p)
+h('x')
 h('z', 999)
 
 
 # In[ ]:
 
 
+# Positions do not have a `z` attribute:
 try:
   h('z')
 except AttributeError as x:
@@ -301,7 +325,7 @@ except AttributeError as x:
 def setter(name: str) -> Unary:
   return lambda obj, val: setattr(obj, name, val)
 
-def accessor(name: str) -> Callable:
+def accessor(name: str) -> Callable[[Any, Optional[Any]], Any]:
   def g(obj, *val):
     if val:
       return setattr(obj, name, val[0])
@@ -326,15 +350,23 @@ a(p, 7)
 p
 
 
+# ## Other Adapters
+
 # In[ ]:
 
 
-def projection(key: Any, default: Any = None) -> Callable:
+def projection(key: Any, *default) -> Callable:
   'Returns a function `f(a)` that returns `a.get(key, default)`.'
-  return lambda a: a.get(key, default)
+  return lambda a: a.get(key, *default)
+
+p = projection("a", 999)
+p({"a": 2, "b": 3})
+p({})
 
 
-# ## Stateful Functions
+# # Stateful Closures
+# 
+# Stateful closures are functions that have access to state that is not visible outside the function.
 
 # ### Generators
 # 
@@ -347,6 +379,7 @@ def projection(key: Any, default: Any = None) -> Callable:
 
 
 def counter(start: int = 0, increment: int = 1) -> Callable[[], int]:
+  "Generator of arithmetic sequences."
   def g() -> int:
     nonlocal start
     result = start
@@ -371,13 +404,19 @@ c()
 # 
 # They often have the form:
 # 
+# ----
+# 
 # ```python
 # def f(a: Any, ...):
 #   return lambda b: Any, ...: \
 #     do_something_with(a, b)
 # ```
 # 
+# ----
+# 
 # or
+# 
+# ----
 # 
 # ```python
 # def f(a: Any, ...):
@@ -385,30 +424,62 @@ c()
 #     return do_something_with(a, b)
 #   return g
 # ```
+# ----
 
-# ## Combinators
+# # Combinators
 # 
 # Combinators:
 # 
-# * are functions that construct functions from other functions.
+# * are functions that construct closures from other functions.
 # * provides a powerful mechanism for reusing logic...
 #   without having to anticpate the future.
 # 
 # A combinator `c` may have the form:
 # 
+# ----
+# ```python
+# def c(f: Callable, ...) -> Callable:    # <-- COMBINATOR
+#   def g(b, ...):                        # <-- COMPOSITION
+#     return f(do_something_with(a, b))   # <-- APPLICATION and RESULT
+#   return g                              # <-- CLOSURE
+# ```
+# ----
+# 
+# or for brevity:
+# 
+# ----
 # ```python
 # def c(f: Callable, ...) -> Callable:
 #   return lambda b, ...: f(do_something_with(a, b))
 # ```
+# ----
+
+# ## Stateless Combinators
+
+# ### Tracing Combinator
 # 
-# or
-# 
-# ```python
-# def c(f: Callable, ...) -> Callable:
-#   def g(b, ...):
-#     return f(do_something_with(a, b))
-#   return g
-# ```
+# Wrap a function with tracing information:
+
+# In[ ]:
+
+
+# Wrap a function that logs input and output.
+def trace(f: Callable, name: str | None = None) -> Callable:  # <-- COMBINATOR
+    def g(*args, **kwargs):                                   # <-- COMPOSITION
+        msg = format_args((name or f.__name__), args, kwargs)
+        print(f"{msg} => ...")
+        result = f(*args, **kwargs)                           # <-- APPLICATION
+        print(f"{msg} => {result!r}")
+        return result                                         # <-- RESULT
+    return g                                                  # <-- CLOSURE
+
+def format_args(name, args, kwargs):
+    return f"{name}(" + ', '.join([repr(x) for x in args] + [f"{k!r}={v!r}" for k, v in kwargs.items()]) + ")"
+
+add = trace(lambda x, y: x + y, "add")
+avg = trace(lambda x, y: add(x, y) / 2.0, "avg")
+trace(avg)(2, 3)
+
 
 # # Stateful Combinators
 
@@ -417,9 +488,10 @@ c()
 
 def with_counter(f: Callable, i: int = 0) -> Callable:
   'Returns a Callable that applies a counter to f.'
-  c = counter(i)
-  return lambda *args, **kwargs: \
-    f(c(), *args, **kwargs)
+  c = counter(i)                         # <-- STATEFUL CLOSURE AS STATE
+  def g(*args, **kwargs):                # <-- COMBINATION
+    return f(c(), *args, **kwargs)       # <-- COMPOSITION and RESULT
+  return g                               # <-- CLOSURE
 
 def multiply(x, y):
   return x * y
@@ -427,6 +499,43 @@ def multiply(x, y):
 f = with_counter(multiply, 21)
 [f(2), f(2), f(3), f(5)]
 
+
+# ## Indenting Tracer
+# 
+# A prettier version of `trace(f)`.
+# 
+# It tracks indention with a `trace_indent` global variable.
+
+# In[ ]:
+
+
+trace_indent = 0
+def trace(f: Callable, name: str | None = None) -> Callable:
+    "Wrap a function that logs input and output."
+    name= name or f.__name__                                 # <-- LOCAL STATE
+    def g(*args, **kwargs):                                  # <-- COMPOSITION
+        global trace_indent                                  # <-- GLOBAL STATE
+        indent = f"\u21e2 {"\u2502 " * trace_indent}"
+        print(f"{indent}{format_args(name, args, kwargs)}")
+        try:
+            trace_indent += 1
+            result = f(*args, **kwargs)                      # <--- APPLICATION
+        finally:
+            trace_indent -= 1
+        print(f"{indent}\u2570\u2574 {result!r}")
+        return result                                        # <--- RESULT
+    return g                                                 # <--- CLOSURE
+
+add = trace(lambda x, y: x + y, "add")
+avg = trace(lambda x, y: add(x, y) / 2.0, "avg")
+trace(avg)(2, 3)
+
+
+# # Function Composition
+
+# # Partial Application
+
+# 
 
 # # Predicates
 
@@ -460,8 +569,6 @@ h = not_(is_string)
 h("hello")
 h(3)
 
-
-# # Partial Application
 
 # Partial application adds "default" values to a function.
 
@@ -515,18 +622,20 @@ h = partial_right(add_and_multiply, 2)
 h(3, 5)
 
 
+# # Iterative Combinators
+
 # In[ ]:
 
 
 def fixed_point(f: Unary) -> Unary:
-  'Returns a function that iterates until `f(x) == x`.'
-  def g(x: Any) -> Any:
-    while True:
-      y = x
-      x = f(x)
-      if x == y:
-        return x
-  return g
+    "Returns a function where: iterate x = f(x) until x no longer changes."
+    def g(x):
+        while True:
+            y = f(x)
+            if y == x:
+                return y
+            x = y
+    return g
 
 def f(xy):
   ic(xy)
@@ -540,15 +649,28 @@ g(("abccabaaxabc", "abc"))
 # In[ ]:
 
 
-def sqrt_estimate(x, y):
-  ic((x, y))
-  return 0.5 * (y + x / y)
+def Heron(S: float) -> float:
+    def g(x):
+        return (x + S / x) / 2.0
+    return g
+fixed_point(trace(Heron(2.0)))(0.5)
 
-ic(x := 50)
-sqrt = fixed_point(partial(sqrt_estimate, x))
-ic(y := sqrt(x * 2))
-ic(math.sqrt(x))
-ic(y ** 2)
+
+# In[ ]:
+
+
+math.sqrt(2.0)
+
+
+# In[ ]:
+
+
+def Collatz(n):
+    if n == 4:
+        return n
+    ic(n)
+    return n // 2 if n % 2 == 0 else n * 3 + 1
+fixed_point(Collatz)(88)
 
 
 # # Manipulating Sequences
@@ -716,8 +838,6 @@ reduce(reverse_args(add), " reversed ", a_list_of_strings)
 reduce(reverse_args(conjoin), 2, [3, 5, 7])
 
 
-# # Function Composition
-
 # In[ ]:
 
 
@@ -776,10 +896,11 @@ map(mod_3, range(10))
 
 
 h = compose(indexed(a_list_of_strings), mod_3)
+a_list_of_strings
 map(h, range(10))
 
 
-# ## Arity Reduction
+# ### Arity Reduction
 
 # In[ ]:
 
@@ -795,47 +916,6 @@ h(a=1, b=2)
 
 
 # # Developer Affordance
-
-# ## Debugging
-
-# In[ ]:
-
-
-def tracer(
-    name: str = "?",
-    log: Unary | None = None,
-  ) -> Callable:
-  indent = 0
-  logger = log or (lambda msg: sys.stderr.write(f'  ## {msg}\n'))
-  def g(f, *args, **kwargs):
-    nonlocal indent
-    indent += 1
-    msg = f"{' ' * indent}{name}({format_args(args, kwargs)})"
-    logger(f"{msg} => ...")
-    result = f(*args, **kwargs)
-    logger(f"{msg} => {result!r}")
-    indent -= 1
-    return result
-  return g
-
-def trace(f: Callable, name: str = "", *args) -> Callable:
-  if not name:
-    name = f.__name__
-  t = tracer(name, *args)
-  return lambda *args, **kwargs: t(f, *args, **kwargs)
-
-def format_args(args, kwargs):
-  return ', '.join(list(map(repr, args)) + [f'{k}={v!r}' for k, v in kwargs])
-
-h = compose(str, plus_three)
-map(h, [2, 3, 5])
-
-g = trace(h, "g")
-map(g, [2, 3, 5])
-
-map_g = trace(partial(map, g), "map_g")
-map_g([2, 3, 5])
-
 
 # ## Error Handlers
 
@@ -873,9 +953,10 @@ h('Nope')
 # In[ ]:
 
 
+# Types for a Web Application Stack:
 Status = int
 Headers = Dict[str, Any]
-Body = Iterable
+Body = Iterable[bytes | str]
 Req = Dict[str, Any]
 Res = Tuple[Status, Headers, Body]
 App = Callable[[Req], Res]
@@ -883,13 +964,11 @@ App = Callable[[Req], Res]
 
 # ## Simple Applications
 
-# ### Hello, World!
-
 # In[ ]:
 
 
 def hello_world_app(req: Req) -> Res:
-  return 200, {}, ("Hello, World!",)
+  return 200, {}, ["Hello, World!\n"]
 app = hello_world_app
 app({})
 
@@ -900,18 +979,18 @@ app({})
 
 
 def something_useful_app(req: Req) -> Res:
-  x, y = req['input.data']
+  x, y = req['req.data']
   return 200, {}, (x * y,)
 
 app = something_useful_app
-app({'input.data': [2, 5]})
+app({'req.data': [2, 5]})
 
 
 # In[ ]:
 
 
 app = something_useful_app
-app({'input.data': ["ab", 3]})
+app({'req.data': ["ab", 3]})
 
 
 # ## Application Combinators
@@ -941,40 +1020,35 @@ def compose_output_handler(app: App) -> App:
   return output_handler
 
 
-# ## Tracing
-
-# In[ ]:
-
-
-def trace_app(app: App, ident="", stream=sys.stderr) -> App:
-    "Traces requests and responses."
-    def indent(msg):
-        stream.write(f"{'  ' * TRACE_INDENT[0]}{msg}")
-    def log(msg):
-        indent(f" #{msg} {ident}\n")
-    def pp(data):
-        indent("")
-        pprint(data, stream=stream)
-    def tracing(req):
-        log(">>>")
-        TRACE_INDENT[0] += 1
-        pp(req)
-        result = app(req)
-        log("...")
-        pp(result)
-        TRACE_INDENT[0] -= 1
-        log("<<<")
-        return result
-    return tracing
-TRACE_INDENT = [0]
-
+# ## App Stack Tracing
 
 # In[ ]:
 
 
 app = something_useful_app
-app = trace_app(app, 'my_app')
-app({'input.data': [5, 7]})
+app = trace(app)
+app({'req.data': [5, 7]})
+
+
+# In[ ]:
+
+
+# Composition Naming
+def compname(g, name, *args):
+    args = [a.__qualname__ if callable(a) else repr(a) for a in args]
+    g.__qualname__ = f"{g}({','.join(args)})"
+    return g
+
+
+# In[ ]:
+
+
+def app_comp(app: App, *stack) -> App:
+    "Compose application stack."
+    app = trace(app)
+    for middleware in stack:
+        app = trace(compname(middleware(app), middleware.__qualname__, app))
+    return app
 
 
 # ## Exception Handling
@@ -996,7 +1070,7 @@ def capture_exception(app: App, cls=Exception, status=500) -> App:
 
 app = something_useful_app
 app = capture_exception(app)
-app({'input.data': [{"a": 1}, 7]})
+app({'req.data': [{"a": 1}, 7]})
 
 
 # ## Reading Inputs, Writing Outputs
@@ -1007,10 +1081,12 @@ app({'input.data': [{"a": 1}, 7]})
 Content = str
 Data = Any
 
-def read_input(app: App, read: Callable[[Data], Content]) -> App:
-    "Reads body.stream"
+def read_input(app: App) -> App:
+    "Reads req.stream"
     def reader(req: Req) -> Res:
-        req["input.content"] = read(req["input.stream"])
+        # TODO: check inbound Content-Length
+        req["req.content"] = req["req.stream"].read()
+        req["Content-Length"] = len(req["req.content"])
         return app(req)
     return reader
 
@@ -1030,7 +1106,7 @@ def decode_content(app: App, decoder: Decoder, content_types=None, strict=False)
     """
 
     def decoding_content(req: Req) -> Res:
-        req["input.data"] = decoder(req["input.content"])
+        req["req.data"] = decoder(req["req.content"])
         content_type = req.get("Content-Type")
         if strict and content_types and content_type not in content_types:
             msg = f"Unexpected Content-Type {content_type!r} : expected: {content_types!r} : "
@@ -1061,8 +1137,8 @@ import json
 
 def decode_json(app: App, **kwargs) -> App:
     "Decodes JSON content."
-    def decoding_json(content: Content) -> Any:
-        return json.loads(content, **kwargs)
+    def decoding_json(data: Data) -> Any:
+        return json.loads(data, **kwargs)
     return decode_content(app, decoding_json, content_types={'application/json', 'text/plain'}, strict=True)
 
 
@@ -1073,18 +1149,76 @@ def encode_json(app: App, **kwargs) -> App:
     return encode_content(app, encoding_json, content_type='application/json')
 
 
+# ## HTTP Protocol
+
+# In[ ]:
+
+
+def http_request(app: App) -> App:
+    def http_req(req):
+        req_io = req["req.stream"]
+        request_method, path_info, server_protocol = req_io.readline().split(" ", 3)
+        req = {}
+        while line := req_io.readline().rstrip():
+            k, v = line.strip().split(":", 2)
+            req[k] = v.strip()
+        req.update({
+            "REQUEST_METHOD": request_method,
+            "PATH_INFO": path_info,
+            "SERVER_PROTOCOL": server_protocol,
+            "req.stream": req_io,
+            # "output.stream": res_io,
+        })
+        return app(req)
+    return http_req
+
+def http_response(app: App) -> App:
+    def http_res(req):
+        status, headers, body = app(req)
+        res_io = req['res.stream']
+        res_io.write(f"HTTP/1.1 {status} ...\n")
+        for k, v in headers.items():
+            res_io.write(f"{k}: {v}\n")
+        res_io.write("\n")
+        for chunk in body:
+            if callable(chunk):
+                chunk(res_io)
+            res_io.write(chunk)
+    return http_res
+
+req_str = """\
+POST / HTTP/1.1
+Host: hello.world.com
+Accept: */*
+Content-Type: text/plain
+
+Are you there?
+"""
+req_io = StringIO(req_str)
+res_io = sys.stdout # StringIO()
+app = app_comp(hello_world_app, http_request, http_response)
+req = {"req.stream": req_io, "res.stream": res_io}
+app(req)
+
+
 # ## Simple App Handles JSON!
 
 # In[ ]:
 
 
-app = something_useful_app
-# app = trace_app(app, 'hello_world_app')
-app = decode_json(app)
-# app = trace_app(app, 'decode_json')
-app = encode_json(app)
-# app = trace_app(app, 'encode_json')
-app({'input.content': "[11, 13]", "Content-Type": 'application/json'})
+app = app_comp(something_useful_app, decode_json, encode_json, read_input, capture_exception, http_request, http_response)
+req_str = """\
+POST / HTTP/1.1
+Host: hello.world.com
+Accept: */*
+Content-Type: application/json
+
+[2, 3]
+"""
+req_io = StringIO(req_str)
+res_io = sys.stdout # StringIO()
+req = {"req.stream": req_io, "res.stream": res_io}
+app(req)
 
 
 # # Logical Combinators
@@ -1208,7 +1342,7 @@ binary_op('!=') (2, 2)
 # In[ ]:
 
 
-def stacky(program):
+def stacky(program, trace=identity):
     'A stack-oriented expression evaluator.'
     def eval(stack, item):
         if isinstance(item, int):
@@ -1219,9 +1353,11 @@ def stacky(program):
         if re.match(r'-?\d+', word):
             return int(word)
         return binary_op(word)
-    return reduce(trace(eval, "eval"), [], map(trace(parse, "parse"), program.split(" ")))
+    return reduce(trace(eval), [], map(trace(parse), program.split(" ")))
 
+stacky("2 3 5 + *")
 stacky("33 2 3 + 5 * >")
+stacky("2 3 *", trace)
 
 
 # In[ ]:
@@ -1617,6 +1753,10 @@ def grammar_parser():
   def g(input, start=None):
     return _(start or 'grammar')(input)
   return g
+
+
+# In[ ]:
+
 
 grammar_tests = [
   # [r'"asdf"'], # , 'pattern'],
