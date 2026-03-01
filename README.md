@@ -5,25 +5,25 @@ An Interactive Introduction to Function Combinators
 Run:
 
 ```bash
-./setup.py
+./scripts/setup.py
 . venv/bin/activate
 ```
 
 Open notebook:
 
 ```bash
-open ./combinators-101.ipynb
+open c101/combinators-101.ipynb
 ```
 
 Before git commit:
 
 ```bash
-./before-commit.sh
+./scripts/before-commit.sh
 ```
 
 Run the notebook code directly:
 
 ```bash
-./before-commit.sh
+./script/sbefore-commit.sh
 python combinators-101.py
 ```
