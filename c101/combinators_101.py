@@ -764,7 +764,7 @@ filter(not_(is_string), items)
 # Functions with two arguments that return anything.
 Binary = Callable[[Any, Any], Any]
 
-def reduce(f: Binary, init: Any, xs: Sequence) -> Sequence:
+def reduce(f: Binary, xs: Iterable, init: Any) -> Any:
   'Returns the result of `init = f(x, init)` for each element `x` in `xs`.'
   for x in xs:
     init = f(init, x)
@@ -773,9 +773,9 @@ def reduce(f: Binary, init: Any, xs: Sequence) -> Sequence:
 def add(x, y):
   return x + y
 
-reduce(add, 2, [3, 5, 7])
+reduce(add, [3, 5, 7], 2)
 a_list_of_strings = ["A", "List", 'Of', 'Strings']
-reduce(add, "Here Is ", a_list_of_strings)
+reduce(add, a_list_of_strings, "Here Is ")
 
 
 # In[ ]:
@@ -784,15 +784,15 @@ reduce(add, "Here Is ", a_list_of_strings)
 items = [1, "string", 2, 3, "-and-more", 5]
 
 # Concat all strings:
-reduce(add, "", filter(is_string, items))
+reduce(add, filter(is_string, items), "")
 
 # Sum of all numbers:
 def is_number(x: Any) -> bool:
   return not isinstance(x, bool) and isinstance(x, Number)
-reduce(add, 0, filter(is_number, items))
+reduce(add, filter(is_number, items), 0)
 
 # Sum all non-strings:
-reduce(add, 0, filter(not_(is_string), items))
+reduce(add, filter(not_(is_string), items), 0)
 
 
 # In[ ]:
@@ -803,7 +803,7 @@ def conjoin(a, b) -> Callable[[Any, Any], Tuple[Any, Any]]:
   return (a, b)
 
 items = [3, "a", 5, "b", 7, "c", 11, True]
-reduce(conjoin, 2, items)
+reduce(conjoin, items, 2)
 
 dict(map(with_counter(conjoin, 21), ["a", "b", "c", "d"]))
 
@@ -813,10 +813,10 @@ dict(map(with_counter(conjoin, 21), ["a", "b", "c", "d"]))
 # In[ ]:
 
 
-def map_r(f: Unary, xs: Sequence) -> Sequence:
+def map_r(f: Unary, xs: Iterable) -> Iterable:
   def acc(seq, x):
     return seq + [f(x)]
-  return reduce(acc, [], xs)
+  return reduce(acc, xs, [])
 
 map(plus_three, [3, 5, 7, 11])
 map_r(plus_three, [3, 5, 7, 11])
@@ -827,10 +827,10 @@ map_r(plus_three, [3, 5, 7, 11])
 # In[ ]:
 
 
-def filter_r(f: Unary, xs: Sequence) -> Sequence:
+def filter_r(f: Unary, xs: Iterable) -> Iterable:
   def acc(seq, x):
     return seq + [x] if f(x) else seq
-  return reduce(acc, [], xs)
+  return reduce(acc, xs, [])
 
 items
 filter(is_string, items)
@@ -846,7 +846,7 @@ ConcatableUnary = Callable[[Any], Sequence]
 
 def mapcat(f: ConcatableUnary, xs: Sequence):
   'Concatenate the results of `map(f, xs)`.'
-  return reduce(add, [], map(f, xs))
+  return reduce(add, map(f, xs), [])
 
 def duplicate(n, x):
   return [x] * n
@@ -872,8 +872,8 @@ def divide(x, y):
 divide(2, 3)
 reverse_args(divide)(2, 3)
 
-reduce(reverse_args(add), " reversed ", a_list_of_strings)
-reduce(reverse_args(conjoin), 2, [3, 5, 7])
+reduce(reverse_args(add), a_list_of_strings, " reversed ")
+reduce(reverse_args(conjoin), [3, 5, 7], 2)
 
 
 # # Interlude
@@ -1006,8 +1006,6 @@ def if_(f: Variadic, g: Unary, h: Unary) -> Variadic:
 
 # # Interpreters
 
-# ## Operator Predicates
-
 # In[ ]:
 
 
@@ -1070,6 +1068,8 @@ stacky("33 2 3 + 5 * >")
 stacky("2 3 *", trace)
 
 
+# ## Operator Predicates
+
 # In[ ]:
 
 
@@ -1102,6 +1102,8 @@ g('')
 g('ab')
 g('abbbcc')
 
+
+# ----
 
 # ## Sequencing
 
