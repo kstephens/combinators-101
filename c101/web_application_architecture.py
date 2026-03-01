@@ -3,7 +3,7 @@
 
 # # (Imports)
 
-# In[ ]:
+# In[35]:
 
 
 import sys; sys.path.append('..')
@@ -25,7 +25,7 @@ from c101.helpers import *
 # - Combinators create new Apps by wrapping others.
 # 
 
-# In[ ]:
+# In[36]:
 
 
 # Types for a Web Application Stack:
@@ -39,7 +39,7 @@ App = Callable[[Req], Res]
 
 # ## Simple Applications
 
-# In[ ]:
+# In[37]:
 
 
 def hello_world_app(req: Req) -> Res:
@@ -50,7 +50,7 @@ app({})
 
 # ### Do Something Useful
 
-# In[ ]:
+# In[38]:
 
 
 def something_useful_app(req: Req) -> Res:
@@ -61,7 +61,7 @@ app = something_useful_app
 app({'req.data': [2, 5]})
 
 
-# In[ ]:
+# In[39]:
 
 
 app = something_useful_app
@@ -72,7 +72,7 @@ app({'req.data': ["ab", 3]})
 
 # Input combinators follow this pattern:
 
-# In[ ]:
+# In[40]:
 
 
 def compose_input_handler(app: App) -> App:
@@ -84,7 +84,7 @@ def compose_input_handler(app: App) -> App:
 
 # Output combinators follow this pattern:
 
-# In[ ]:
+# In[41]:
 
 
 def compose_output_handler(app: App) -> App:
@@ -97,7 +97,7 @@ def compose_output_handler(app: App) -> App:
 
 # ## App Stack Tracing
 
-# In[ ]:
+# In[42]:
 
 
 app = something_useful_app
@@ -105,7 +105,7 @@ app = trace(app)
 app({'req.data': [5, 7]})
 
 
-# In[ ]:
+# In[43]:
 
 
 # Composition Naming
@@ -115,7 +115,7 @@ def compname(g, name, *args):
     return g
 
 
-# In[ ]:
+# In[44]:
 
 
 def app_comp(app: App, *stack) -> App:
@@ -128,7 +128,7 @@ def app_comp(app: App, *stack) -> App:
 
 # ## Exception Handling
 
-# In[ ]:
+# In[45]:
 
 
 def capture_exception(app: App, cls=Exception, status=500) -> App:
@@ -140,7 +140,7 @@ def capture_exception(app: App, cls=Exception, status=500) -> App:
     return capturing_exception
 
 
-# In[ ]:
+# In[46]:
 
 
 app = something_useful_app
@@ -150,7 +150,7 @@ app({'req.data': [{"a": 1}, 7]})
 
 # ## Reading Inputs, Writing Outputs
 
-# In[ ]:
+# In[47]:
 
 
 Content = str
@@ -158,17 +158,16 @@ Data = Any
 
 def read_input(app: App) -> App:
     "Reads req.stream"
-    def reader(req: Req) -> Res:
-        # TODO: check inbound Content-Length
+    def read_content(req: Req) -> Res:
         req["req.content"] = req["req.stream"].read()
         req["Content-Length"] = len(req["req.content"])
         return app(req)
-    return reader
+    return read_content
 
 
 # ## Decoding Inputs, Encoding Outputs
 
-# In[ ]:
+# In[48]:
 
 
 Encoder = Callable[[Data], Content]
@@ -179,13 +178,12 @@ def decode_content(app: App, decoder: Decoder, content_types=None, strict=False)
     Decodes body with decoder(input.content) for content_types.
     If strict and Content-Type is not expected, return 400.
     """
-
     def decoding_content(req: Req) -> Res:
-        req["req.data"] = decoder(req["req.content"])
         content_type = req.get("Content-Type")
         if strict and content_types and content_type not in content_types:
             msg = f"Unexpected Content-Type {content_type!r} : expected: {content_types!r} : "
             return 400, {"Content-Type": 'text/plain'}, (msg,)
+        req["req.data"] = decoder(req["req.content"])
         return app(req)
     return decoding_content
 
@@ -205,32 +203,32 @@ def encode_content(app: App, encoder: Encoder, content_type="text/plain") -> App
 
 # ## Decode JSON, Encode JSON
 
-# In[ ]:
+# In[49]:
 
 
 import json
 
-def decode_json(app: App, **kwargs) -> App:
+def decode_json(app: App, *args, **kwargs) -> App:
     "Decodes JSON content."
     def decoding_json(data: Data) -> Any:
-        return json.loads(data, **kwargs)
+        return json.loads(data, *args, **kwargs)
     return decode_content(app, decoding_json, content_types={'application/json', 'text/plain'}, strict=True)
 
 
-def encode_json(app: App, **kwargs) -> App:
+def encode_json(app: App, *args, **kwargs) -> App:
     "Encodes data as JSON."
     def encoding_json(data: Data) -> Content:
-        return json.dumps(data, **kwargs) + "\n"
+        return json.dumps(data, *args, **kwargs) + "\n"
     return encode_content(app, encoding_json, content_type='application/json')
 
 
 # ## HTTP Protocol
 
-# In[ ]:
+# In[58]:
 
 
 def http_request(app: App) -> App:
-    def http_req(req):
+    def http_request(req):
         req_io = req["req.stream"]
         request_method, path_info, server_protocol = req_io.readline().split(" ", 3)
         req = {}
@@ -245,13 +243,13 @@ def http_request(app: App) -> App:
             # "output.stream": res_io,
         })
         return app(req)
-    return http_req
+    return http_request
 
 def http_response(app: App) -> App:
-    def http_res(req):
+    def http_response(req):
         status, headers, body = app(req)
         res_io = req['res.stream']
-        res_io.write(f"HTTP/1.1 {status} ...\n")
+        res_io.write(f"HTTP/1.1 {http_status_line(status)}\n")
         for k, v in headers.items():
             res_io.write(f"{k}: {v}\n")
         res_io.write("\n")
@@ -259,7 +257,7 @@ def http_response(app: App) -> App:
             if callable(chunk):
                 chunk(res_io)
             res_io.write(chunk)
-    return http_res
+    return http_response
 
 req_str = """\
 POST / HTTP/1.1
@@ -270,7 +268,7 @@ Content-Type: text/plain
 Are you there?
 """
 req_io = StringIO(req_str)
-res_io = sys.stdout # StringIO()
+res_io = sys.stdout
 app = app_comp(hello_world_app, http_request, http_response)
 req = {"req.stream": req_io, "res.stream": res_io}
 app(req)
@@ -281,7 +279,16 @@ app(req)
 # In[ ]:
 
 
-app = app_comp(something_useful_app, decode_json, encode_json, read_input, capture_exception, http_request, http_response)
+def http_request_str(app):
+    def http(req_str: str):
+        req = {"req.stream": StringIO(req_str), "res.stream": res_io}
+        app(req)
+    return http
+
+app = app_comp(something_useful_app, decode_json, encode_json, read_input, capture_exception, http_request, http_response, http_request_str)
+res_io = sys.stdout
+
+
 req_str = """\
 POST / HTTP/1.1
 Host: hello.world.com
@@ -290,10 +297,35 @@ Content-Type: application/json
 
 [2, 3]
 """
-req_io = StringIO(req_str)
-res_io = sys.stdout # StringIO()
-req = {"req.stream": req_io, "res.stream": res_io}
-app(req)
+app(req_str)
+
+
+# In[60]:
+
+
+req_str = """\
+POST / HTTP/1.1
+Host: hello.world.com
+Accept: */*
+Content-Type: application/json
+
+Invalid Json
+"""
+app(req_str)
+
+
+# In[ ]:
+
+
+req_str = """\
+POST / HTTP/1.1
+Host: hello.world.com
+Accept: */*
+Content-Type: application/json
+
+2
+"""
+app(req_str)
 
 
 # ----

@@ -477,7 +477,7 @@ f = with_counter(multiply, 21)
 # 
 # It tracks indention with a `trace_indent` global variable.
 
-# In[ ]:
+# In[103]:
 
 
 trace_indent = 0                                             # <-- GLOBAL STATE
@@ -488,6 +488,7 @@ def trace(f: Callable, name: str | None = None) -> Callable:
     def g(*args, **kwargs):                                  # <-- COMPOSITION
         global trace_indent                                  # <-- GLOBAL STATE
         g, _ = "\033[38;5;22m", "\033[0m"
+        r = "\033[38;2;120;50;50m"
         g = "\033[38;2;40;180;40m"
         b = "\033[38;2;120;120;255m"
         ind = f"{g}\u21e2 {"\u2502 " * trace_indent}"
@@ -495,6 +496,9 @@ def trace(f: Callable, name: str | None = None) -> Callable:
         try:
             trace_indent += 1
             result = f(*args, **kwargs)                      # <--- APPLICATION
+        except Exception as exc:
+            print(f"{ind}{_}{r}\u2570\u2574\u29b8 {exc!r}{_}")
+            raise exc
         finally:
             trace_indent -= 1
         print(f"{ind}\u2570\u2574{_} {b}{result!r}{_}")
@@ -502,8 +506,12 @@ def trace(f: Callable, name: str | None = None) -> Callable:
     return g                                                 # <--- CLOSURE
 
 add = trace(lambda x, y: x + y, "add")
-avg = trace(lambda x, y: add(x, y) / 2.0, "avg")
+avg = trace(lambda x, y: add(x, y) / (2.0 * y), "avg")
 trace(avg)(2, 3)
+try:
+    trace(avg)(2, 0)
+except:
+    pass
 
 
 # ----

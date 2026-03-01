@@ -13,6 +13,8 @@ import math
 from pprint import pformat
 import dis
 from icecream import ic
+from http import HTTPStatus
+
 
 ic.configureOutput(prefix="  #>> ")
 #ic.configureOutput(includeContext=True)
@@ -59,25 +61,29 @@ def trace(f: Callable, name: str | None = None) -> Callable:
     name = name or f.__name__                                # <-- LOCAL STATE
     def g(*args, **kwargs):                                  # <-- COMPOSITION
         global trace_indent                                  # <-- GLOBAL STATE
-        g_, _ = "\033[38;5;22m", "\033[0m"
-        g_ = "\033[38;2;40;180;40m"
-        b_ = "\033[38;2;120;120;255m"
-        ind = f"{g_}\u21e2 {"\u2502 " * trace_indent}"
+        g, _ = "\033[38;5;22m", "\033[0m"
+        r = "\033[38;2;120;50;50m"
+        g = "\033[38;2;40;180;40m"
+        b = "\033[38;2;120;120;255m"
+        ind = f"{g}\u21e2 {"\u2502 " * trace_indent}"
         print(f"{ind}{_}{format_args(name, args, kwargs)}")
         try:
             trace_indent += 1
             result = f(*args, **kwargs)                      # <--- APPLICATION
+        except Exception as exc:
+            print(f"{ind}{_}{r}\u2570\u2574\u29b8 {exc!r}{_}")
+            raise exc
         finally:
             trace_indent -= 1
-        print(f"{ind}\u2570\u2574{_} {b_}{result!r}{_}")
+        print(f"{ind}\u2570\u2574{_} {b}{result!r}{_}")
         return result                                        # <--- RESULT
     return g                                                 # <--- CLOSURE
+
+#####################################
 
 
 def format_args(name, args, kwargs):
     return f"{name}(" + ', '.join([repr(x) for x in args] + [f"{k!r}={v!r}" for k, v in kwargs.items()]) + ")"
-
-#####################################
 
 
 def re_pred(pat: str, re_func: Callable = re.search) -> Predicate:
@@ -85,6 +91,12 @@ def re_pred(pat: str, re_func: Callable = re.search) -> Predicate:
   rx = re.compile(pat)
   return lambda x: re_func(rx, str(x)) is not None
 
+
+def http_status_line(code: int) -> str:
+    try:
+        return f"{code} {HTTPStatus(code).phrase}"
+    except ValueError:
+        return str(code)
 
 # def export_to(env):
 #     env.update(globals())

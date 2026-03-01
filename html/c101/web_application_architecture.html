@@ -8230,12 +8230,11 @@ a.anchor-link {
 
 <span class="k">def</span><span class="w"> </span><span class="nf">read_input</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">App</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">App</span><span class="p">:</span>
     <span class="s2">"Reads req.stream"</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">reader</span><span class="p">(</span><span class="n">req</span><span class="p">:</span> <span class="n">Req</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Res</span><span class="p">:</span>
-        <span class="c1"># TODO: check inbound Content-Length</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_content</span><span class="p">(</span><span class="n">req</span><span class="p">:</span> <span class="n">Req</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Res</span><span class="p">:</span>
         <span class="n">req</span><span class="p">[</span><span class="s2">"req.content"</span><span class="p">]</span> <span class="o">=</span> <span class="n">req</span><span class="p">[</span><span class="s2">"req.stream"</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">req</span><span class="p">[</span><span class="s2">"Content-Length"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">req</span><span class="p">[</span><span class="s2">"req.content"</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">app</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">reader</span>
+    <span class="k">return</span> <span class="n">read_content</span>
 </pre></div>
 </div>
 </div>
@@ -8268,13 +8267,12 @@ a.anchor-link {
 <span class="sd">    Decodes body with decoder(input.content) for content_types.</span>
 <span class="sd">    If strict and Content-Type is not expected, return 400.</span>
 <span class="sd">    """</span>
-
     <span class="k">def</span><span class="w"> </span><span class="nf">decoding_content</span><span class="p">(</span><span class="n">req</span><span class="p">:</span> <span class="n">Req</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Res</span><span class="p">:</span>
-        <span class="n">req</span><span class="p">[</span><span class="s2">"req.data"</span><span class="p">]</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span><span class="n">req</span><span class="p">[</span><span class="s2">"req.content"</span><span class="p">])</span>
         <span class="n">content_type</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Content-Type"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">strict</span> <span class="ow">and</span> <span class="n">content_types</span> <span class="ow">and</span> <span class="n">content_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">content_types</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Unexpected Content-Type </span><span class="si">{</span><span class="n">content_type</span><span class="si">!r}</span><span class="s2"> : expected: </span><span class="si">{</span><span class="n">content_types</span><span class="si">!r}</span><span class="s2"> : "</span>
             <span class="k">return</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">"Content-Type"</span><span class="p">:</span> <span class="s1">'text/plain'</span><span class="p">},</span> <span class="p">(</span><span class="n">msg</span><span class="p">,)</span>
+        <span class="n">req</span><span class="p">[</span><span class="s2">"req.data"</span><span class="p">]</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span><span class="n">req</span><span class="p">[</span><span class="s2">"req.content"</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">app</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">decoding_content</span>
 
@@ -8316,17 +8314,17 @@ a.anchor-link {
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">decode_json</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">App</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">App</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">decode_json</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">App</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">App</span><span class="p">:</span>
     <span class="s2">"Decodes JSON content."</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">decoding_json</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">decode_content</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">decoding_json</span><span class="p">,</span> <span class="n">content_types</span><span class="o">=</span><span class="p">{</span><span class="s1">'application/json'</span><span class="p">,</span> <span class="s1">'text/plain'</span><span class="p">},</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">encode_json</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">App</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">App</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">encode_json</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">App</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">App</span><span class="p">:</span>
     <span class="s2">"Encodes data as JSON."</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">encoding_json</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Content</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
     <span class="k">return</span> <span class="n">encode_content</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">encoding_json</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s1">'application/json'</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -8353,7 +8351,7 @@ a.anchor-link {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">http_request</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">App</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">App</span><span class="p">:</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">http_req</span><span class="p">(</span><span class="n">req</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">http_request</span><span class="p">(</span><span class="n">req</span><span class="p">):</span>
         <span class="n">req_io</span> <span class="o">=</span> <span class="n">req</span><span class="p">[</span><span class="s2">"req.stream"</span><span class="p">]</span>
         <span class="n">request_method</span><span class="p">,</span> <span class="n">path_info</span><span class="p">,</span> <span class="n">server_protocol</span> <span class="o">=</span> <span class="n">req_io</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
         <span class="n">req</span> <span class="o">=</span> <span class="p">{}</span>
@@ -8368,13 +8366,13 @@ a.anchor-link {
             <span class="c1"># "output.stream": res_io,</span>
         <span class="p">})</span>
         <span class="k">return</span> <span class="n">app</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">http_req</span>
+    <span class="k">return</span> <span class="n">http_request</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">http_response</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">App</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">App</span><span class="p">:</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">http_res</span><span class="p">(</span><span class="n">req</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">http_response</span><span class="p">(</span><span class="n">req</span><span class="p">):</span>
         <span class="n">status</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">body</span> <span class="o">=</span> <span class="n">app</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
         <span class="n">res_io</span> <span class="o">=</span> <span class="n">req</span><span class="p">[</span><span class="s1">'res.stream'</span><span class="p">]</span>
-        <span class="n">res_io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"HTTP/1.1 </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2"> ...</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">res_io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"HTTP/1.1 </span><span class="si">{</span><span class="n">http_status_line</span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">headers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">res_io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">res_io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
@@ -8382,7 +8380,7 @@ a.anchor-link {
             <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">chunk</span><span class="p">):</span>
                 <span class="n">chunk</span><span class="p">(</span><span class="n">res_io</span><span class="p">)</span>
             <span class="n">res_io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">http_res</span>
+    <span class="k">return</span> <span class="n">http_response</span>
 
 <span class="n">req_str</span> <span class="o">=</span> <span class="s2">"""</span><span class="se">\</span>
 <span class="s2">POST / HTTP/1.1</span>
@@ -8393,7 +8391,7 @@ a.anchor-link {
 <span class="s2">Are you there?</span>
 <span class="s2">"""</span>
 <span class="n">req_io</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">req_str</span><span class="p">)</span>
-<span class="n">res_io</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="c1"># StringIO()</span>
+<span class="n">res_io</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
 <span class="n">app</span> <span class="o">=</span> <span class="n">app_comp</span><span class="p">(</span><span class="n">hello_world_app</span><span class="p">,</span> <span class="n">http_request</span><span class="p">,</span> <span class="n">http_response</span><span class="p">)</span>
 <span class="n">req</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"req.stream"</span><span class="p">:</span> <span class="n">req_io</span><span class="p">,</span> <span class="s2">"res.stream"</span><span class="p">:</span> <span class="n">res_io</span><span class="p">}</span>
 <span class="n">app</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
@@ -8409,12 +8407,12 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre><span style="color: rgb(40,180,40)">⇢ </span>http_res({'req.stream': &lt;_io.StringIO object at 0x110b234c0&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x107927f70&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ </span>http_req({'req.stream': &lt;_io.StringIO object at 0x110b234c0&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x107927f70&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ │ </span>hello_world_app({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'text/plain', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x110b234c0&gt;})
+<pre><span style="color: rgb(40,180,40)">⇢ </span>http_response({'req.stream': &lt;_io.StringIO object at 0x122d23700&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x122917ee0&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ </span>http_request({'req.stream': &lt;_io.StringIO object at 0x122d23700&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x122917ee0&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ </span>hello_world_app({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'text/plain', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23700&gt;})
 <span style="color: rgb(40,180,40)">⇢ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(200, {}, ['Hello, World!\n'])</span>
 <span style="color: rgb(40,180,40)">⇢ │ ╰╴</span> <span style="color: rgb(120,120,255)">(200, {}, ['Hello, World!\n'])</span>
-HTTP/1.1 200 ...
+HTTP/1.1 200 OK
 
 Hello, World!
 <span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">None</span>
@@ -8442,7 +8440,16 @@ Hello, World!
 <div class="jp-InputPrompt jp-InputArea-prompt">In [17]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">app</span> <span class="o">=</span> <span class="n">app_comp</span><span class="p">(</span><span class="n">something_useful_app</span><span class="p">,</span> <span class="n">decode_json</span><span class="p">,</span> <span class="n">encode_json</span><span class="p">,</span> <span class="n">read_input</span><span class="p">,</span> <span class="n">capture_exception</span><span class="p">,</span> <span class="n">http_request</span><span class="p">,</span> <span class="n">http_response</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">http_request_str</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">http</span><span class="p">(</span><span class="n">req_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"req.stream"</span><span class="p">:</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">req_str</span><span class="p">),</span> <span class="s2">"res.stream"</span><span class="p">:</span> <span class="n">res_io</span><span class="p">}</span>
+        <span class="n">app</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">http</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">app_comp</span><span class="p">(</span><span class="n">something_useful_app</span><span class="p">,</span> <span class="n">decode_json</span><span class="p">,</span> <span class="n">encode_json</span><span class="p">,</span> <span class="n">read_input</span><span class="p">,</span> <span class="n">capture_exception</span><span class="p">,</span> <span class="n">http_request</span><span class="p">,</span> <span class="n">http_response</span><span class="p">,</span> <span class="n">http_request_str</span><span class="p">)</span>
+<span class="n">res_io</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+
+
 <span class="n">req_str</span> <span class="o">=</span> <span class="s2">"""</span><span class="se">\</span>
 <span class="s2">POST / HTTP/1.1</span>
 <span class="s2">Host: hello.world.com</span>
@@ -8451,10 +8458,7 @@ Hello, World!
 
 <span class="s2">[2, 3]</span>
 <span class="s2">"""</span>
-<span class="n">req_io</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">req_str</span><span class="p">)</span>
-<span class="n">res_io</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="c1"># StringIO()</span>
-<span class="n">req</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"req.stream"</span><span class="p">:</span> <span class="n">req_io</span><span class="p">,</span> <span class="s2">"res.stream"</span><span class="p">:</span> <span class="n">res_io</span><span class="p">}</span>
-<span class="n">app</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+<span class="n">app</span><span class="p">(</span><span class="n">req_str</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -8467,24 +8471,130 @@ Hello, World!
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre><span style="color: rgb(40,180,40)">⇢ </span>http_res({'req.stream': &lt;_io.StringIO object at 0x110b23ac0&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x107927f70&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ </span>http_req({'req.stream': &lt;_io.StringIO object at 0x110b23ac0&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x107927f70&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ │ </span>capturing_exception({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x110b23ac0&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ </span>reader({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x110b23ac0&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ </span>encoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x110b23ac0&gt;, 'req.content': '[2, 3]\n', 'Content-Length': 7})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ </span>decoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x110b23ac0&gt;, 'req.content': '[2, 3]\n', 'Content-Length': 7})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ </span>something_useful_app({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x110b23ac0&gt;, 'req.content': '[2, 3]\n', 'Content-Length': 7, 'req.data': [2, 3]})
+<pre><span style="color: rgb(40,180,40)">⇢ </span>http('POST / HTTP/1.1\nHost: hello.world.com\nAccept: */*\nContent-Type: application/json\n\n[2, 3]\n')
+<span style="color: rgb(40,180,40)">⇢ │ </span>http_response({'req.stream': &lt;_io.StringIO object at 0x122d23ac0&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x122917ee0&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ </span>http_request({'req.stream': &lt;_io.StringIO object at 0x122d23ac0&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x122917ee0&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ </span>capturing_exception({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23ac0&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ </span>read_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23ac0&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ </span>encoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23ac0&gt;, 'req.content': '[2, 3]\n', 'Content-Length': 7})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ </span>decoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23ac0&gt;, 'req.content': '[2, 3]\n', 'Content-Length': 7})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ │ </span>something_useful_app({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23ac0&gt;, 'req.content': '[2, 3]\n', 'Content-Length': 7, 'req.data': [2, 3]})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(200, {}, (6,))</span>
 <span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(200, {}, (6,))</span>
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(200, {}, (6,))</span>
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(200, {'Content-Type': 'application/json', 'Content-Length': 2}, ['6\n'])</span>
 <span style="color: rgb(40,180,40)">⇢ │ │ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(200, {'Content-Type': 'application/json', 'Content-Length': 2}, ['6\n'])</span>
 <span style="color: rgb(40,180,40)">⇢ │ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(200, {'Content-Type': 'application/json', 'Content-Length': 2}, ['6\n'])</span>
 <span style="color: rgb(40,180,40)">⇢ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(200, {'Content-Type': 'application/json', 'Content-Length': 2}, ['6\n'])</span>
-<span style="color: rgb(40,180,40)">⇢ │ ╰╴</span> <span style="color: rgb(120,120,255)">(200, {'Content-Type': 'application/json', 'Content-Length': 2}, ['6\n'])</span>
-HTTP/1.1 200 ...
+HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
 6
+<span style="color: rgb(40,180,40)">⇢ │ ╰╴</span> <span style="color: rgb(120,120,255)">None</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">None</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [18]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">req_str</span> <span class="o">=</span> <span class="s2">"""</span><span class="se">\</span>
+<span class="s2">POST / HTTP/1.1</span>
+<span class="s2">Host: hello.world.com</span>
+<span class="s2">Accept: */*</span>
+<span class="s2">Content-Type: application/json</span>
+
+<span class="s2">Invalid Json</span>
+<span class="s2">"""</span>
+<span class="n">app</span><span class="p">(</span><span class="n">req_str</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre><span style="color: rgb(40,180,40)">⇢ </span>http('POST / HTTP/1.1\nHost: hello.world.com\nAccept: */*\nContent-Type: application/json\n\nInvalid Json\n')
+<span style="color: rgb(40,180,40)">⇢ │ </span>http_response({'req.stream': &lt;_io.StringIO object at 0x122d234c0&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x122917ee0&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ </span>http_request({'req.stream': &lt;_io.StringIO object at 0x122d234c0&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x122917ee0&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ </span>capturing_exception({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d234c0&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ </span>read_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d234c0&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ </span>encoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d234c0&gt;, 'req.content': 'Invalid Json\n', 'Content-Length': 13})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ </span>decoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d234c0&gt;, 'req.content': 'Invalid Json\n', 'Content-Length': 13})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ </span><span style="color: rgb(120,50,50)">╰╴⦸ JSONDecodeError('Expecting value: line 1 column 1 (char 0)')</span>
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ </span><span style="color: rgb(120,50,50)">╰╴⦸ JSONDecodeError('Expecting value: line 1 column 1 (char 0)')</span>
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ </span><span style="color: rgb(120,50,50)">╰╴⦸ JSONDecodeError('Expecting value: line 1 column 1 (char 0)')</span>
+<span style="color: rgb(40,180,40)">⇢ │ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(500, {'Content-Type': 'text/plain'}, ("JSONDecodeError('Expecting value: line 1 column 1 (char 0)')",))</span>
+<span style="color: rgb(40,180,40)">⇢ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(500, {'Content-Type': 'text/plain'}, ("JSONDecodeError('Expecting value: line 1 column 1 (char 0)')",))</span>
+HTTP/1.1 500 Internal Server Error
+Content-Type: text/plain
+
+JSONDecodeError('Expecting value: line 1 column 1 (char 0)')<span style="color: rgb(40,180,40)">⇢ │ ╰╴</span> <span style="color: rgb(120,120,255)">None</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">None</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [19]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">req_str</span> <span class="o">=</span> <span class="s2">"""</span><span class="se">\</span>
+<span class="s2">POST / HTTP/1.1</span>
+<span class="s2">Host: hello.world.com</span>
+<span class="s2">Accept: */*</span>
+<span class="s2">Content-Type: application/json</span>
+
+<span class="s2">2</span>
+<span class="s2">"""</span>
+<span class="n">app</span><span class="p">(</span><span class="n">req_str</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre><span style="color: rgb(40,180,40)">⇢ </span>http('POST / HTTP/1.1\nHost: hello.world.com\nAccept: */*\nContent-Type: application/json\n\n2\n')
+<span style="color: rgb(40,180,40)">⇢ │ </span>http_response({'req.stream': &lt;_io.StringIO object at 0x122d23880&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x122917ee0&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ </span>http_request({'req.stream': &lt;_io.StringIO object at 0x122d23880&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x122917ee0&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ </span>capturing_exception({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23880&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ </span>read_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23880&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ </span>encoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23880&gt;, 'req.content': '2\n', 'Content-Length': 2})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ </span>decoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23880&gt;, 'req.content': '2\n', 'Content-Length': 2})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ │ </span>something_useful_app({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23880&gt;, 'req.content': '2\n', 'Content-Length': 2, 'req.data': 2})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ │ </span><span style="color: rgb(120,50,50)">╰╴⦸ TypeError('cannot unpack non-iterable int object')</span>
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ </span><span style="color: rgb(120,50,50)">╰╴⦸ TypeError('cannot unpack non-iterable int object')</span>
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ </span><span style="color: rgb(120,50,50)">╰╴⦸ TypeError('cannot unpack non-iterable int object')</span>
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ </span><span style="color: rgb(120,50,50)">╰╴⦸ TypeError('cannot unpack non-iterable int object')</span>
+<span style="color: rgb(40,180,40)">⇢ │ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(500, {'Content-Type': 'text/plain'}, ("TypeError('cannot unpack non-iterable int object')",))</span>
+<span style="color: rgb(40,180,40)">⇢ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(500, {'Content-Type': 'text/plain'}, ("TypeError('cannot unpack non-iterable int object')",))</span>
+HTTP/1.1 500 Internal Server Error
+Content-Type: text/plain
+
+TypeError('cannot unpack non-iterable int object')<span style="color: rgb(40,180,40)">⇢ │ ╰╴</span> <span style="color: rgb(120,120,255)">None</span>
 <span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">None</span>
 </pre>
 </div>
