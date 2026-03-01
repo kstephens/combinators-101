@@ -477,7 +477,7 @@ f = with_counter(multiply, 21)
 # 
 # It tracks indention with a `trace_indent` global variable.
 
-# In[32]:
+# In[ ]:
 
 
 trace_indent = 0                                             # <-- GLOBAL STATE
@@ -487,14 +487,17 @@ def trace(f: Callable, name: str | None = None) -> Callable:
     name = name or f.__name__                                # <-- LOCAL STATE
     def g(*args, **kwargs):                                  # <-- COMPOSITION
         global trace_indent                                  # <-- GLOBAL STATE
-        indent = f"\u21e2 {"\u2502 " * trace_indent}"
-        print(f"{indent}{format_args(name, args, kwargs)}")
+        g, _ = "\033[38;5;22m", "\033[0m"
+        g = "\033[38;2;40;180;40m"
+        b = "\033[38;2;120;120;255m"
+        ind = f"{g}\u21e2 {"\u2502 " * trace_indent}"
+        print(f"{ind}{_}{format_args(name, args, kwargs)}")
         try:
             trace_indent += 1
             result = f(*args, **kwargs)                      # <--- APPLICATION
         finally:
             trace_indent -= 1
-        print(f"{indent}\u2570\u2574 {result!r}")
+        print(f"{ind}\u2570\u2574{_} {b}{result!r}{_}")
         return result                                        # <--- RESULT
     return g                                                 # <--- CLOSURE
 

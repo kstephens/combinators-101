@@ -9305,14 +9305,17 @@ g(2, 3) =&gt; 2.5
     <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">f</span><span class="o">.</span><span class="vm">__name__</span>                                <span class="c1"># &lt;-- LOCAL STATE</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">g</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>                                  <span class="c1"># &lt;-- COMPOSITION</span>
         <span class="k">global</span> <span class="n">trace_indent</span>                                  <span class="c1"># &lt;-- GLOBAL STATE</span>
-        <span class="n">indent</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\u21e2</span><span class="s2"> </span><span class="si">{</span><span class="s2">"</span><span class="se">\u2502</span><span class="s2"> "</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">trace_indent</span><span class="si">}</span><span class="s2">"</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">indent</span><span class="si">}{</span><span class="n">format_args</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="p">,</span><span class="w"> </span><span class="n">kwargs</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">g</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[38;5;22m"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[0m"</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[38;2;40;180;40m"</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[38;2;120;120;255m"</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">g</span><span class="si">}</span><span class="se">\u21e2</span><span class="s2"> </span><span class="si">{</span><span class="s2">"</span><span class="se">\u2502</span><span class="s2"> "</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">trace_indent</span><span class="si">}</span><span class="s2">"</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ind</span><span class="si">}{</span><span class="n">_</span><span class="si">}{</span><span class="n">format_args</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="p">,</span><span class="w"> </span><span class="n">kwargs</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">trace_indent</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>                      <span class="c1"># &lt;--- APPLICATION</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="n">trace_indent</span> <span class="o">-=</span> <span class="mi">1</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">indent</span><span class="si">}</span><span class="se">\u2570\u2574</span><span class="s2"> </span><span class="si">{</span><span class="n">result</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="se">\u2570\u2574</span><span class="si">{</span><span class="n">_</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">b</span><span class="si">}{</span><span class="n">result</span><span class="si">!r}{</span><span class="n">_</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>                                        <span class="c1"># &lt;--- RESULT</span>
     <span class="k">return</span> <span class="n">g</span>                                                 <span class="c1"># &lt;--- CLOSURE</span>
 
@@ -9331,12 +9334,12 @@ g(2, 3) =&gt; 2.5
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>⇢ g(2, 3)
-⇢ │ avg(2, 3)
-⇢ │ │ add(2, 3)
-⇢ │ │ ╰╴ 5
-⇢ │ ╰╴ 2.5
-⇢ ╰╴ 2.5
+<pre><span style="color: rgb(40,180,40)">⇢ </span>g(2, 3)
+<span style="color: rgb(40,180,40)">⇢ │ </span>avg(2, 3)
+<span style="color: rgb(40,180,40)">⇢ │ │ </span>add(2, 3)
+<span style="color: rgb(40,180,40)">⇢ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">5</span>
+<span style="color: rgb(40,180,40)">⇢ │ ╰╴</span> <span style="color: rgb(120,120,255)">2.5</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">2.5</span>
 </pre>
 </div>
 </div>
@@ -9536,7 +9539,7 @@ g(2, 3) =&gt; 2.5
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
 <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[35]:</div>
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
-<pre>&lt;method-wrapper '__add__' of int object at 0x102e56020&gt;</pre>
+<pre>&lt;method-wrapper '__add__' of int object at 0x102f06020&gt;</pre>
 </div>
 </div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
@@ -9833,14 +9836,14 @@ g(2, 3) =&gt; 2.5
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>⇢ f(('abccabaaxabc', 'abc'))
-⇢ ╰╴ ('bccabaaxbc', 'bc')
-⇢ f(('bccabaaxbc', 'bc'))
-⇢ ╰╴ ('ccabaaxc', 'c')
-⇢ f(('ccabaaxc', 'c'))
-⇢ ╰╴ ('abaax', '')
-⇢ f(('abaax', ''))
-⇢ ╰╴ ('abaax', '')
+<pre><span style="color: rgb(40,180,40)">⇢ </span>f(('abccabaaxabc', 'abc'))
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">('bccabaaxbc', 'bc')</span>
+<span style="color: rgb(40,180,40)">⇢ </span>f(('bccabaaxbc', 'bc'))
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">('ccabaaxc', 'c')</span>
+<span style="color: rgb(40,180,40)">⇢ </span>f(('ccabaaxc', 'c'))
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">('abaax', '')</span>
+<span style="color: rgb(40,180,40)">⇢ </span>f(('abaax', ''))
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">('abaax', '')</span>
 </pre>
 </div>
 </div>
@@ -9890,22 +9893,22 @@ g(2, 3) =&gt; 2.5
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>⇢ g(25.0)
-⇢ ╰╴ 13.5
-⇢ g(13.5)
-⇢ ╰╴ 8.601851851851851
-⇢ g(8.601851851851851)
-⇢ ╰╴ 7.207276840888251
-⇢ g(7.207276840888251)
-⇢ ╰╴ 7.072354906838855
-⇢ g(7.072354906838855)
-⇢ ╰╴ 7.071067928984419
-⇢ g(7.071067928984419)
-⇢ ╰╴ 7.071067811865476
-⇢ g(7.071067811865476)
-⇢ ╰╴ 7.0710678118654755
-⇢ g(7.0710678118654755)
-⇢ ╰╴ 7.0710678118654755
+<pre><span style="color: rgb(40,180,40)">⇢ </span>g(25.0)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">13.5</span>
+<span style="color: rgb(40,180,40)">⇢ </span>g(13.5)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">8.601851851851851</span>
+<span style="color: rgb(40,180,40)">⇢ </span>g(8.601851851851851)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">7.207276840888251</span>
+<span style="color: rgb(40,180,40)">⇢ </span>g(7.207276840888251)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">7.072354906838855</span>
+<span style="color: rgb(40,180,40)">⇢ </span>g(7.072354906838855)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">7.071067928984419</span>
+<span style="color: rgb(40,180,40)">⇢ </span>g(7.071067928984419)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">7.071067811865476</span>
+<span style="color: rgb(40,180,40)">⇢ </span>g(7.071067811865476)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">7.0710678118654755</span>
+<span style="color: rgb(40,180,40)">⇢ </span>g(7.0710678118654755)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">7.0710678118654755</span>
 </pre>
 </div>
 </div>
@@ -9948,42 +9951,42 @@ g(2, 3) =&gt; 2.5
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>⇢ Collatz(88)
-⇢ ╰╴ 44
-⇢ Collatz(44)
-⇢ ╰╴ 22
-⇢ Collatz(22)
-⇢ ╰╴ 11
-⇢ Collatz(11)
-⇢ ╰╴ 34
-⇢ Collatz(34)
-⇢ ╰╴ 17
-⇢ Collatz(17)
-⇢ ╰╴ 52
-⇢ Collatz(52)
-⇢ ╰╴ 26
-⇢ Collatz(26)
-⇢ ╰╴ 13
-⇢ Collatz(13)
-⇢ ╰╴ 40
-⇢ Collatz(40)
-⇢ ╰╴ 20
-⇢ Collatz(20)
-⇢ ╰╴ 10
-⇢ Collatz(10)
-⇢ ╰╴ 5
-⇢ Collatz(5)
-⇢ ╰╴ 16
-⇢ Collatz(16)
-⇢ ╰╴ 8
-⇢ Collatz(8)
-⇢ ╰╴ 4
-⇢ Collatz(4)
-⇢ ╰╴ 2
-⇢ Collatz(2)
-⇢ ╰╴ 1
-⇢ Collatz(1)
-⇢ ╰╴ 1
+<pre><span style="color: rgb(40,180,40)">⇢ </span>Collatz(88)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">44</span>
+<span style="color: rgb(40,180,40)">⇢ </span>Collatz(44)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">22</span>
+<span style="color: rgb(40,180,40)">⇢ </span>Collatz(22)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">11</span>
+<span style="color: rgb(40,180,40)">⇢ </span>Collatz(11)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">34</span>
+<span style="color: rgb(40,180,40)">⇢ </span>Collatz(34)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">17</span>
+<span style="color: rgb(40,180,40)">⇢ </span>Collatz(17)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">52</span>
+<span style="color: rgb(40,180,40)">⇢ </span>Collatz(52)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">26</span>
+<span style="color: rgb(40,180,40)">⇢ </span>Collatz(26)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">13</span>
+<span style="color: rgb(40,180,40)">⇢ </span>Collatz(13)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">40</span>
+<span style="color: rgb(40,180,40)">⇢ </span>Collatz(40)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">20</span>
+<span style="color: rgb(40,180,40)">⇢ </span>Collatz(20)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">10</span>
+<span style="color: rgb(40,180,40)">⇢ </span>Collatz(10)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">5</span>
+<span style="color: rgb(40,180,40)">⇢ </span>Collatz(5)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">16</span>
+<span style="color: rgb(40,180,40)">⇢ </span>Collatz(16)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">8</span>
+<span style="color: rgb(40,180,40)">⇢ </span>Collatz(8)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">4</span>
+<span style="color: rgb(40,180,40)">⇢ </span>Collatz(4)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">2</span>
+<span style="color: rgb(40,180,40)">⇢ </span>Collatz(2)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">1</span>
+<span style="color: rgb(40,180,40)">⇢ </span>Collatz(1)
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">1</span>
 </pre>
 </div>
 </div>

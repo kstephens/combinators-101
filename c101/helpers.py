@@ -49,26 +49,35 @@ def reduce(f: Binary, xs: Iterable, init: Any) -> Any:
   return init
 
 
-trace_indent = 0
+#####################################
+# See combinators_101.ipynb
+
+trace_indent = 0                                             # <-- GLOBAL STATE
+
 def trace(f: Callable, name: str | None = None) -> Callable:
     "Wrap a function that logs input and output."
-    name= name or f.__name__                                 # <-- LOCAL STATE
+    name = name or f.__name__                                # <-- LOCAL STATE
     def g(*args, **kwargs):                                  # <-- COMPOSITION
         global trace_indent                                  # <-- GLOBAL STATE
-        indent = f"\u21e2 {"\u2502 " * trace_indent}"
-        print(f"{indent}{format_args(name, args, kwargs)}")
+        g_, _ = "\033[38;5;22m", "\033[0m"
+        g_ = "\033[38;2;40;180;40m"
+        b_ = "\033[38;2;120;120;255m"
+        ind = f"{g_}\u21e2 {"\u2502 " * trace_indent}"
+        print(f"{ind}{_}{format_args(name, args, kwargs)}")
         try:
             trace_indent += 1
             result = f(*args, **kwargs)                      # <--- APPLICATION
         finally:
             trace_indent -= 1
-        print(f"{indent}\u2570\u2574 {result!r}")
+        print(f"{ind}\u2570\u2574{_} {b_}{result!r}{_}")
         return result                                        # <--- RESULT
     return g                                                 # <--- CLOSURE
 
 
 def format_args(name, args, kwargs):
     return f"{name}(" + ', '.join([repr(x) for x in args] + [f"{k!r}={v!r}" for k, v in kwargs.items()]) + ")"
+
+#####################################
 
 
 def re_pred(pat: str, re_func: Callable = re.search) -> Predicate:
