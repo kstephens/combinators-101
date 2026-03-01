@@ -477,7 +477,7 @@ f = with_counter(multiply, 21)
 # 
 # It tracks indention with a `trace_indent` global variable.
 
-# In[103]:
+# In[108]:
 
 
 trace_indent = 0                                             # <-- GLOBAL STATE
@@ -487,21 +487,21 @@ def trace(f: Callable, name: str | None = None) -> Callable:
     name = name or f.__name__                                # <-- LOCAL STATE
     def g(*args, **kwargs):                                  # <-- COMPOSITION
         global trace_indent                                  # <-- GLOBAL STATE
-        g, _ = "\033[38;5;22m", "\033[0m"
-        r = "\033[38;2;120;50;50m"
+        _ = "\033[0m"
+        r = "\033[38;2;200;50;50m"
         g = "\033[38;2;40;180;40m"
         b = "\033[38;2;120;120;255m"
-        ind = f"{g}\u21e2 {"\u2502 " * trace_indent}"
-        print(f"{ind}{_}{format_args(name, args, kwargs)}")
+        ind = f"\u21e2 {"\u2502 " * trace_indent}"
+        print(f"{g}{ind}{_}{format_args(name, args, kwargs)}")
         try:
             trace_indent += 1
             result = f(*args, **kwargs)                      # <--- APPLICATION
         except Exception as exc:
-            print(f"{ind}{_}{r}\u2570\u2574\u29b8 {exc!r}{_}")
+            print(f"{r}{ind}\u2570\u2574\u29b8 {exc!r}{_}")
             raise exc
         finally:
             trace_indent -= 1
-        print(f"{ind}\u2570\u2574{_} {b}{result!r}{_}")
+        print(f"{g}{ind}\u2570\u2574{_} {b}{result!r}{_}")
         return result                                        # <--- RESULT
     return g                                                 # <--- CLOSURE
 

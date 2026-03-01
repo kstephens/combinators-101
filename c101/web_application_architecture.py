@@ -128,7 +128,7 @@ def app_comp(app: App, *stack) -> App:
 
 # ## Exception Handling
 
-# In[45]:
+# In[ ]:
 
 
 def capture_exception(app: App, cls=Exception, status=500) -> App:
@@ -136,7 +136,7 @@ def capture_exception(app: App, cls=Exception, status=500) -> App:
         try:
             return app(req)
         except cls as exc:
-            return status, {"Content-Type": "text/plain"}, (repr(exc),)
+            return status, {"Content-Type": "text/plain"}, [repr(exc) + "\n"]
     return capturing_exception
 
 
@@ -314,7 +314,7 @@ Invalid Json
 app(req_str)
 
 
-# In[ ]:
+# In[61]:
 
 
 req_str = """\

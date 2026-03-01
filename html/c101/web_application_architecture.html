@@ -8169,7 +8169,7 @@ a.anchor-link {
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">app</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
         <span class="k">except</span> <span class="bp">cls</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="p">{</span><span class="s2">"Content-Type"</span><span class="p">:</span> <span class="s2">"text/plain"</span><span class="p">},</span> <span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">exc</span><span class="p">),)</span>
+            <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="p">{</span><span class="s2">"Content-Type"</span><span class="p">:</span> <span class="s2">"text/plain"</span><span class="p">},</span> <span class="p">[</span><span class="nb">repr</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">capturing_exception</span>
 </pre></div>
 </div>
@@ -8201,7 +8201,7 @@ a.anchor-link {
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
 <pre>(500,
  {'Content-Type': 'text/plain'},
- ('TypeError("unsupported operand type(s) for *: \'dict\' and \'int\'")',))</pre>
+ ['TypeError("unsupported operand type(s) for *: \'dict\' and \'int\'")\n'])</pre>
 </div>
 </div>
 </div>
@@ -8407,9 +8407,9 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre><span style="color: rgb(40,180,40)">⇢ </span>http_response({'req.stream': &lt;_io.StringIO object at 0x122d23700&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x122917ee0&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ </span>http_request({'req.stream': &lt;_io.StringIO object at 0x122d23700&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x122917ee0&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ │ </span>hello_world_app({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'text/plain', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23700&gt;})
+<pre><span style="color: rgb(40,180,40)">⇢ </span>http_response({'req.stream': &lt;_io.StringIO object at 0x106923700&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x105945900&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ </span>http_request({'req.stream': &lt;_io.StringIO object at 0x106923700&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x105945900&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ </span>hello_world_app({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'text/plain', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x106923700&gt;})
 <span style="color: rgb(40,180,40)">⇢ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(200, {}, ['Hello, World!\n'])</span>
 <span style="color: rgb(40,180,40)">⇢ │ ╰╴</span> <span style="color: rgb(120,120,255)">(200, {}, ['Hello, World!\n'])</span>
 HTTP/1.1 200 OK
@@ -8472,13 +8472,13 @@ Hello, World!
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre><span style="color: rgb(40,180,40)">⇢ </span>http('POST / HTTP/1.1\nHost: hello.world.com\nAccept: */*\nContent-Type: application/json\n\n[2, 3]\n')
-<span style="color: rgb(40,180,40)">⇢ │ </span>http_response({'req.stream': &lt;_io.StringIO object at 0x122d23ac0&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x122917ee0&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ │ </span>http_request({'req.stream': &lt;_io.StringIO object at 0x122d23ac0&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x122917ee0&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ </span>capturing_exception({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23ac0&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ </span>read_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23ac0&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ </span>encoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23ac0&gt;, 'req.content': '[2, 3]\n', 'Content-Length': 7})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ </span>decoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23ac0&gt;, 'req.content': '[2, 3]\n', 'Content-Length': 7})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ │ </span>something_useful_app({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23ac0&gt;, 'req.content': '[2, 3]\n', 'Content-Length': 7, 'req.data': [2, 3]})
+<span style="color: rgb(40,180,40)">⇢ │ </span>http_response({'req.stream': &lt;_io.StringIO object at 0x106923ac0&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x105945900&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ </span>http_request({'req.stream': &lt;_io.StringIO object at 0x106923ac0&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x105945900&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ </span>capturing_exception({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x106923ac0&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ </span>read_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x106923ac0&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ </span>encoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x106923ac0&gt;, 'req.content': '[2, 3]\n', 'Content-Length': 7})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ </span>decoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x106923ac0&gt;, 'req.content': '[2, 3]\n', 'Content-Length': 7})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ │ </span>something_useful_app({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x106923ac0&gt;, 'req.content': '[2, 3]\n', 'Content-Length': 7, 'req.data': [2, 3]})
 <span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(200, {}, (6,))</span>
 <span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(200, {}, (6,))</span>
 <span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(200, {'Content-Type': 'application/json', 'Content-Length': 2}, ['6\n'])</span>
@@ -8527,21 +8527,22 @@ Content-Length: 2
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre><span style="color: rgb(40,180,40)">⇢ </span>http('POST / HTTP/1.1\nHost: hello.world.com\nAccept: */*\nContent-Type: application/json\n\nInvalid Json\n')
-<span style="color: rgb(40,180,40)">⇢ │ </span>http_response({'req.stream': &lt;_io.StringIO object at 0x122d234c0&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x122917ee0&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ │ </span>http_request({'req.stream': &lt;_io.StringIO object at 0x122d234c0&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x122917ee0&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ </span>capturing_exception({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d234c0&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ </span>read_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d234c0&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ </span>encoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d234c0&gt;, 'req.content': 'Invalid Json\n', 'Content-Length': 13})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ </span>decoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d234c0&gt;, 'req.content': 'Invalid Json\n', 'Content-Length': 13})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ </span><span style="color: rgb(120,50,50)">╰╴⦸ JSONDecodeError('Expecting value: line 1 column 1 (char 0)')</span>
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ </span><span style="color: rgb(120,50,50)">╰╴⦸ JSONDecodeError('Expecting value: line 1 column 1 (char 0)')</span>
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ </span><span style="color: rgb(120,50,50)">╰╴⦸ JSONDecodeError('Expecting value: line 1 column 1 (char 0)')</span>
-<span style="color: rgb(40,180,40)">⇢ │ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(500, {'Content-Type': 'text/plain'}, ("JSONDecodeError('Expecting value: line 1 column 1 (char 0)')",))</span>
-<span style="color: rgb(40,180,40)">⇢ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(500, {'Content-Type': 'text/plain'}, ("JSONDecodeError('Expecting value: line 1 column 1 (char 0)')",))</span>
+<span style="color: rgb(40,180,40)">⇢ │ </span>http_response({'req.stream': &lt;_io.StringIO object at 0x1069234c0&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x105945900&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ </span>http_request({'req.stream': &lt;_io.StringIO object at 0x1069234c0&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x105945900&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ </span>capturing_exception({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x1069234c0&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ </span>read_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x1069234c0&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ </span>encoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x1069234c0&gt;, 'req.content': 'Invalid Json\n', 'Content-Length': 13})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ </span>decoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x1069234c0&gt;, 'req.content': 'Invalid Json\n', 'Content-Length': 13})
+<span style="color: rgb(200,50,50)">⇢ │ │ │ │ │ │ ╰╴⦸ JSONDecodeError('Expecting value: line 1 column 1 (char 0)')</span>
+<span style="color: rgb(200,50,50)">⇢ │ │ │ │ │ ╰╴⦸ JSONDecodeError('Expecting value: line 1 column 1 (char 0)')</span>
+<span style="color: rgb(200,50,50)">⇢ │ │ │ │ ╰╴⦸ JSONDecodeError('Expecting value: line 1 column 1 (char 0)')</span>
+<span style="color: rgb(40,180,40)">⇢ │ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(500, {'Content-Type': 'text/plain'}, ["JSONDecodeError('Expecting value: line 1 column 1 (char 0)')\n"])</span>
+<span style="color: rgb(40,180,40)">⇢ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(500, {'Content-Type': 'text/plain'}, ["JSONDecodeError('Expecting value: line 1 column 1 (char 0)')\n"])</span>
 HTTP/1.1 500 Internal Server Error
 Content-Type: text/plain
 
-JSONDecodeError('Expecting value: line 1 column 1 (char 0)')<span style="color: rgb(40,180,40)">⇢ │ ╰╴</span> <span style="color: rgb(120,120,255)">None</span>
+JSONDecodeError('Expecting value: line 1 column 1 (char 0)')
+<span style="color: rgb(40,180,40)">⇢ │ ╰╴</span> <span style="color: rgb(120,120,255)">None</span>
 <span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">None</span>
 </pre>
 </div>
@@ -8578,23 +8579,24 @@ JSONDecodeError('Expecting value: line 1 column 1 (char 0)')<span style="color: 
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre><span style="color: rgb(40,180,40)">⇢ </span>http('POST / HTTP/1.1\nHost: hello.world.com\nAccept: */*\nContent-Type: application/json\n\n2\n')
-<span style="color: rgb(40,180,40)">⇢ │ </span>http_response({'req.stream': &lt;_io.StringIO object at 0x122d23880&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x122917ee0&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ │ </span>http_request({'req.stream': &lt;_io.StringIO object at 0x122d23880&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x122917ee0&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ </span>capturing_exception({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23880&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ </span>read_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23880&gt;})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ </span>encoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23880&gt;, 'req.content': '2\n', 'Content-Length': 2})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ </span>decoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23880&gt;, 'req.content': '2\n', 'Content-Length': 2})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ │ </span>something_useful_app({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x122d23880&gt;, 'req.content': '2\n', 'Content-Length': 2, 'req.data': 2})
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ │ </span><span style="color: rgb(120,50,50)">╰╴⦸ TypeError('cannot unpack non-iterable int object')</span>
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ </span><span style="color: rgb(120,50,50)">╰╴⦸ TypeError('cannot unpack non-iterable int object')</span>
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ </span><span style="color: rgb(120,50,50)">╰╴⦸ TypeError('cannot unpack non-iterable int object')</span>
-<span style="color: rgb(40,180,40)">⇢ │ │ │ │ </span><span style="color: rgb(120,50,50)">╰╴⦸ TypeError('cannot unpack non-iterable int object')</span>
-<span style="color: rgb(40,180,40)">⇢ │ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(500, {'Content-Type': 'text/plain'}, ("TypeError('cannot unpack non-iterable int object')",))</span>
-<span style="color: rgb(40,180,40)">⇢ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(500, {'Content-Type': 'text/plain'}, ("TypeError('cannot unpack non-iterable int object')",))</span>
+<span style="color: rgb(40,180,40)">⇢ │ </span>http_response({'req.stream': &lt;_io.StringIO object at 0x106923880&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x105945900&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ </span>http_request({'req.stream': &lt;_io.StringIO object at 0x106923880&gt;, 'res.stream': &lt;ipykernel.iostream.OutStream object at 0x105945900&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ </span>capturing_exception({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x106923880&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ </span>read_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x106923880&gt;})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ </span>encoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x106923880&gt;, 'req.content': '2\n', 'Content-Length': 2})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ </span>decoding_content({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x106923880&gt;, 'req.content': '2\n', 'Content-Length': 2})
+<span style="color: rgb(40,180,40)">⇢ │ │ │ │ │ │ │ </span>something_useful_app({'Host': 'hello.world.com', 'Accept': '*/*', 'Content-Type': 'application/json', 'REQUEST_METHOD': 'POST', 'PATH_INFO': '/', 'SERVER_PROTOCOL': 'HTTP/1.1\n', 'req.stream': &lt;_io.StringIO object at 0x106923880&gt;, 'req.content': '2\n', 'Content-Length': 2, 'req.data': 2})
+<span style="color: rgb(200,50,50)">⇢ │ │ │ │ │ │ │ ╰╴⦸ TypeError('cannot unpack non-iterable int object')</span>
+<span style="color: rgb(200,50,50)">⇢ │ │ │ │ │ │ ╰╴⦸ TypeError('cannot unpack non-iterable int object')</span>
+<span style="color: rgb(200,50,50)">⇢ │ │ │ │ │ ╰╴⦸ TypeError('cannot unpack non-iterable int object')</span>
+<span style="color: rgb(200,50,50)">⇢ │ │ │ │ ╰╴⦸ TypeError('cannot unpack non-iterable int object')</span>
+<span style="color: rgb(40,180,40)">⇢ │ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(500, {'Content-Type': 'text/plain'}, ["TypeError('cannot unpack non-iterable int object')\n"])</span>
+<span style="color: rgb(40,180,40)">⇢ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">(500, {'Content-Type': 'text/plain'}, ["TypeError('cannot unpack non-iterable int object')\n"])</span>
 HTTP/1.1 500 Internal Server Error
 Content-Type: text/plain
 
-TypeError('cannot unpack non-iterable int object')<span style="color: rgb(40,180,40)">⇢ │ ╰╴</span> <span style="color: rgb(120,120,255)">None</span>
+TypeError('cannot unpack non-iterable int object')
+<span style="color: rgb(40,180,40)">⇢ │ ╰╴</span> <span style="color: rgb(120,120,255)">None</span>
 <span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">None</span>
 </pre>
 </div>

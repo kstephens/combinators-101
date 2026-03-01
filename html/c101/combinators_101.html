@@ -9305,21 +9305,21 @@ g(2, 3) =&gt; 2.5
     <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">f</span><span class="o">.</span><span class="vm">__name__</span>                                <span class="c1"># &lt;-- LOCAL STATE</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">g</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>                                  <span class="c1"># &lt;-- COMPOSITION</span>
         <span class="k">global</span> <span class="n">trace_indent</span>                                  <span class="c1"># &lt;-- GLOBAL STATE</span>
-        <span class="n">g</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[38;5;22m"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[0m"</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[38;2;120;50;50m"</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[0m"</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[38;2;200;50;50m"</span>
         <span class="n">g</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[38;2;40;180;40m"</span>
         <span class="n">b</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[38;2;120;120;255m"</span>
-        <span class="n">ind</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">g</span><span class="si">}</span><span class="se">\u21e2</span><span class="s2"> </span><span class="si">{</span><span class="s2">"</span><span class="se">\u2502</span><span class="s2"> "</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">trace_indent</span><span class="si">}</span><span class="s2">"</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ind</span><span class="si">}{</span><span class="n">_</span><span class="si">}{</span><span class="n">format_args</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="p">,</span><span class="w"> </span><span class="n">kwargs</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\u21e2</span><span class="s2"> </span><span class="si">{</span><span class="s2">"</span><span class="se">\u2502</span><span class="s2"> "</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">trace_indent</span><span class="si">}</span><span class="s2">"</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">g</span><span class="si">}{</span><span class="n">ind</span><span class="si">}{</span><span class="n">_</span><span class="si">}{</span><span class="n">format_args</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="p">,</span><span class="w"> </span><span class="n">kwargs</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">trace_indent</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>                      <span class="c1"># &lt;--- APPLICATION</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ind</span><span class="si">}{</span><span class="n">_</span><span class="si">}{</span><span class="n">r</span><span class="si">}</span><span class="se">\u2570\u2574\u29b8</span><span class="s2"> </span><span class="si">{</span><span class="n">exc</span><span class="si">!r}{</span><span class="n">_</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">r</span><span class="si">}{</span><span class="n">ind</span><span class="si">}</span><span class="se">\u2570\u2574\u29b8</span><span class="s2"> </span><span class="si">{</span><span class="n">exc</span><span class="si">!r}{</span><span class="n">_</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">raise</span> <span class="n">exc</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="n">trace_indent</span> <span class="o">-=</span> <span class="mi">1</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="se">\u2570\u2574</span><span class="si">{</span><span class="n">_</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">b</span><span class="si">}{</span><span class="n">result</span><span class="si">!r}{</span><span class="n">_</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">g</span><span class="si">}{</span><span class="n">ind</span><span class="si">}</span><span class="se">\u2570\u2574</span><span class="si">{</span><span class="n">_</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">b</span><span class="si">}{</span><span class="n">result</span><span class="si">!r}{</span><span class="n">_</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>                                        <span class="c1"># &lt;--- RESULT</span>
     <span class="k">return</span> <span class="n">g</span>                                                 <span class="c1"># &lt;--- CLOSURE</span>
 
@@ -9364,8 +9364,8 @@ g(2, 3) =&gt; 2.5
 <span style="color: rgb(40,180,40)">⇢ │ </span>avg(2, 0)
 <span style="color: rgb(40,180,40)">⇢ │ │ </span>add(2, 0)
 <span style="color: rgb(40,180,40)">⇢ │ │ ╰╴</span> <span style="color: rgb(120,120,255)">2</span>
-<span style="color: rgb(40,180,40)">⇢ │ </span><span style="color: rgb(120,50,50)">╰╴⦸ ZeroDivisionError('float division by zero')</span>
-<span style="color: rgb(40,180,40)">⇢ </span><span style="color: rgb(120,50,50)">╰╴⦸ ZeroDivisionError('float division by zero')</span>
+<span style="color: rgb(200,50,50)">⇢ │ ╰╴⦸ ZeroDivisionError('float division by zero')</span>
+<span style="color: rgb(200,50,50)">⇢ ╰╴⦸ ZeroDivisionError('float division by zero')</span>
 </pre>
 </div>
 </div>
@@ -9559,7 +9559,7 @@ g(2, 3) =&gt; 2.5
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
 <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[35]:</div>
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
-<pre>&lt;method-wrapper '__add__' of int object at 0x103976020&gt;</pre>
+<pre>&lt;method-wrapper '__add__' of int object at 0x101b0e020&gt;</pre>
 </div>
 </div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
