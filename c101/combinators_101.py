@@ -662,7 +662,7 @@ map(juxt(identity, negative, partial(repeat, 3)), [2, 3, 5, 7])
 
 # # Iterative Combinators
 
-# In[41]:
+# In[70]:
 
 
 def fixed_point(f: Unary) -> Unary:
@@ -676,11 +676,10 @@ def fixed_point(f: Unary) -> Unary:
     return g
 
 def f(xy):
-  ic(xy)
   x, y = xy
   return (x.replace(y, y[1:]), y[1:])
 
-g = fixed_point(f)
+g = fixed_point(trace(f))
 g(("abccabaaxabc", "abc"))
 
 
@@ -701,15 +700,14 @@ sqrt(50.0)
 math.sqrt(50.0)
 
 
-# In[44]:
+# In[71]:
 
 
 def Collatz(n):
-    ic(n)
     if n == 1:
         return n
     return n // 2 if n % 2 == 0 else n * 3 + 1
-fixed_point(Collatz)(88)
+fixed_point(trace(Collatz))(88)
 
 
 # # Manipulating Sequences
