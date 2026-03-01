@@ -27,3 +27,9 @@ Run the notebook code directly:
 script/sbefore-commit.sh
 python c101/combinators_101.py
 ```
+
+View the notebooks:
+
+```bash
+open html/*/*.html
+```

@@ -7,7 +7,13 @@ do
   html="${nb%.*}.html"
   html_dst="html/$html"
 
-  jupyter nbconvert --to html --execute "$nb"
+  jupyter nbconvert \
+    --execute \
+    --to html \
+    --template lab \
+    --HTMLExporter.theme=dark \
+    "$nb"
+
   mkdir -p "${html_dst%/*}"
   chmod u+w "$html_dst" || :
   mv "$html" "$html_dst"
