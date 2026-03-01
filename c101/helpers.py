@@ -37,7 +37,7 @@ Binary = Callable[[Any, Any], Any]
 Predicate = Callable[..., bool]
 
 
-def reduce(f: Binary, init: Any, xs: Sequence) -> Sequence:
+def reduce(f: Binary, xs: Iterable, init: Any) -> Any:
   'Returns the result of `init = f(x, init)` for each element `x` in `xs`.'
   for x in xs:
     init = f(init, x)
