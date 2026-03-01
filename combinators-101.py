@@ -35,23 +35,23 @@ InteractiveShell.ast_node_interactivity = "all"
 
 
 # # Combinators-101
-# 
+#
 # This workshop is about building functions with functions.
-# 
+#
 # * function types.
 # * functions as values.
 # * information-hiding with functions.
 # * function that create functions.
 # * functions that combine functions into new functions.
-# 
+#
 # This workshop presents higher-order functional programming using Python.  While there are other programming which are specifically functional, Python is the most popular programming language in the world and it supports functional programming very well.
 
 # # Types
-# 
+#
 # This workshop will use Python's `typing` framework.  Types help us understand what combinators do with functions.
 
 # ## Basic Types
-# 
+#
 # * `int` - an integer
 # * `str` - a string
 # * `Any` - any type
@@ -59,7 +59,7 @@ InteractiveShell.ast_node_interactivity = "all"
 # * `List[T]` - a `List` containing values of `T`
 
 # ## Function Types
-# 
+#
 # * `Callable` - anything that can be called with zero or more arguments
 # * `Callable[..., T]` - a `Callable` with zero or more arguments that returns a value of type `T`
 # * `Callable[[A1, A2], T]` - Two arguments of type `A1` and `A2`, respectively, returning type `T`
@@ -82,7 +82,7 @@ h("ab", 21)
 # # First-Class Functions
 
 # can be:
-# 
+#
 # * assigned to variables
 # * arguments to functions
 # * returned as values
@@ -365,15 +365,15 @@ p({})
 
 
 # # Stateful Closures
-# 
+#
 # Stateful closures are functions that have access to state that is not visible outside the function.
 
 # ### Generators
-# 
+#
 # A generator is an impure function, which may return a different value regardless of its arguments.
 # Examples:
 # - random number generator
-# - reading lines from a file 
+# - reading lines from a file
 
 # In[ ]:
 
@@ -399,25 +399,25 @@ c()
 
 # # Second-Order Functions
 
-# 
+#
 # Second-Order Functions return other functions.
-# 
+#
 # They often have the form:
-# 
+#
 # ----
-# 
+#
 # ```python
 # def f(a: Any, ...):
 #   return lambda b: Any, ...: \
 #     do_something_with(a, b)
 # ```
-# 
+#
 # ----
-# 
+#
 # or
-# 
+#
 # ----
-# 
+#
 # ```python
 # def f(a: Any, ...):
 #   def g(b: Any, ...):  # `g` has access to `a`
@@ -427,15 +427,15 @@ c()
 # ----
 
 # # Combinators
-# 
+#
 # Combinators:
-# 
+#
 # * are functions that construct closures from other functions.
 # * provides a powerful mechanism for reusing logic...
 #   without having to anticpate the future.
-# 
+#
 # A combinator `c` may have the form:
-# 
+#
 # ----
 # ```python
 # def c(f: Callable, ...) -> Callable:    # <-- COMBINATOR
@@ -444,9 +444,9 @@ c()
 #   return g                              # <-- CLOSURE
 # ```
 # ----
-# 
+#
 # or for brevity:
-# 
+#
 # ----
 # ```python
 # def c(f: Callable, ...) -> Callable:
@@ -457,7 +457,7 @@ c()
 # ## Stateless Combinators
 
 # ### Tracing Combinator
-# 
+#
 # Wrap a function with tracing information:
 
 # In[ ]:
@@ -501,9 +501,9 @@ f = with_counter(multiply, 21)
 
 
 # ## Indenting Tracer
-# 
+#
 # A prettier version of `trace(f)`.
-# 
+#
 # It tracks indention with a `trace_indent` global variable.
 
 # In[ ]:
@@ -535,7 +535,7 @@ trace(avg)(2, 3)
 
 # # Partial Application
 
-# 
+#
 
 # # Predicates
 
@@ -936,9 +936,9 @@ h('Nope')
 
 
 # # Web Application Architecture
-# 
+#
 # Application middleware combinators inspired Python WSGI and Ruby Rack.
-# 
+#
 # - An "App" is anything callable with a single dict argument.
 # - It receives a "Request"
 #   - typically a Dict of input: headers, body and customary values passed along an "application stack".
@@ -948,7 +948,7 @@ h('Nope')
 #   - body -- a sequence of response body chunks
 # - applications and middleware follow the same protocol.
 # - Combinators create new Apps by wrapping others.
-# 
+#
 
 # In[ ]:
 
