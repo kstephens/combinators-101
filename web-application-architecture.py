@@ -10,7 +10,7 @@
 from IPython.core.interactiveshell import InteractiveShell
 InteractiveShell.ast_node_interactivity = "all"
 
-from helpers import *
+from c101.helpers import *
 
 
 # # Web Application Architecture
