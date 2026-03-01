@@ -66,5 +66,11 @@ def format_args(name, args, kwargs):
     return f"{name}(" + ', '.join([repr(x) for x in args] + [f"{k!r}={v!r}" for k, v in kwargs.items()]) + ")"
 
 
+def re_pred(pat: str, re_func: Callable = re.search) -> Predicate:
+  'Returns a predicate that matches a regular expression.'
+  rx = re.compile(pat)
+  return lambda x: re_func(rx, str(x)) is not None
+
+
 # def export_to(env):
 #     env.update(globals())
