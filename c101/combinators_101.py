@@ -615,7 +615,7 @@ def compose(*callables) -> Variadic:
   For example, `compose(g, f)(x, y)` is equivalent to `g(f(x, y))`.
   """
   f: Callable = callables[-1]
-  gs: Sequence[Unary] = tuple(reversed(callables[:-1]))
+  gs: Iterable[Unary] = tuple(reversed(callables[:-1]))
   def h(*args, **kwargs):
     result = f(*args, **kwargs)
     for g in gs:
@@ -719,7 +719,7 @@ fixed_point(Collatz)(88)
 
 
 # Note: Python has a built-in `map` -- this is for illustration:
-def map(f: Unary, xs: Sequence) -> Sequence:
+def map(f: Unary, xs: Iterable) -> Iterable:
   'Returns a sequence of `f(x)` for each element `x` in `xs`.'
   acc = []
   for x in xs:
@@ -747,7 +747,7 @@ map(plus_three, [3, 5, 7, 11])
 # In[ ]:
 
 
-def filter(f: Unary, xs: Sequence) -> Sequence:
+def filter(f: Unary, xs: Iterable) -> Iterable:
   'Returns a sequence of the elements of `xs` for which `f` returns true.'
   return [x for x in xs if f(x)]
 
@@ -842,9 +842,9 @@ filter_r(is_string, items)
 # In[ ]:
 
 
-ConcatableUnary = Callable[[Any], Sequence]
+ConcatableUnary = Callable[[Any], Iterable]
 
-def mapcat(f: ConcatableUnary, xs: Sequence):
+def mapcat(f: ConcatableUnary, xs: Iterable):
   'Concatenate the results of `map(f, xs)`.'
   return reduce(add, map(f, xs), [])
 
@@ -1011,7 +1011,7 @@ def if_(f: Variadic, g: Unary, h: Unary) -> Variadic:
 # In[ ]:
 
 
-def progn(*fs: Sequence[Callable]) -> Callable:
+def progn(*fs: Iterable[Callable]) -> Callable:
   'Returns a function that calls each function in turn and returns the last result.'
   def g(*args, **kwargs):
     result = None
@@ -1024,7 +1024,7 @@ def progn(*fs: Sequence[Callable]) -> Callable:
 # In[ ]:
 
 
-def prog1(f0: Callable, *fs: Sequence[Callable]) -> Callable:
+def prog1(f0: Callable, *fs: Iterable[Callable]) -> Callable:
   'Returns a function that calls each function in turn and returns the last result.'
   def g(*args, **kwargs):
     result = f0(*args, **kwargs)

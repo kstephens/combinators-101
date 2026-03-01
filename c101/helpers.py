@@ -37,6 +37,11 @@ Binary = Callable[[Any, Any], Any]
 Predicate = Callable[..., bool]
 
 
+# This forces map to list:
+map_ = map
+def map(*args, **kwargs):
+   return list(map_(*args, **kwargs))
+
 def reduce(f: Binary, xs: Iterable, init: Any) -> Any:
   'Returns the result of `init = f(x, init)` for each element `x` in `xs`.'
   for x in xs:
