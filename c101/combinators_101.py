@@ -3,7 +3,7 @@
 
 # # (Imports)
 
-# In[ ]:
+# In[1]:
 
 
 import sys; sys.path.append('..')
@@ -42,7 +42,7 @@ from c101.helpers import *
 # * `Callable[..., T]` - a `Callable` with zero or more arguments that returns a value of type `T`
 # * `Callable[[A1, A2], T]` - Two arguments of type `A1` and `A2`, respectively, returning type `T`
 
-# In[ ]:
+# In[2]:
 
 
 # Example:
@@ -69,7 +69,7 @@ h("ab", 21)
 
 # ## Functions don't have Names, Names have Functions!
 
-# In[ ]:
+# In[3]:
 
 
 print(2)
@@ -80,7 +80,7 @@ g(2)
 
 # ## Where did that function come from?
 
-# In[ ]:
+# In[4]:
 
 
 def call_func_three_times(func: Callable):
@@ -90,7 +90,7 @@ def call_func_three_times(func: Callable):
 call_func_three_times(print)
 
 
-# In[ ]:
+# In[5]:
 
 
 call_func_three_times(g)
@@ -98,7 +98,7 @@ call_func_three_times(g)
 
 # ## The most useful useless function
 
-# In[ ]:
+# In[6]:
 
 
 def identity(x: Any) -> Any:
@@ -113,14 +113,14 @@ h(3)
 
 # ## Anonymous Functions
 
-# In[ ]:
+# In[7]:
 
 
 lambda x: x + 3
 (lambda x: x + 3)(2)           # Never had a name.
 
 
-# In[ ]:
+# In[8]:
 
 
 plus_three = lambda x: x + 3   # Gave it a name.
@@ -140,14 +140,14 @@ plus_three(2)
 
 # ### Constantly return a value
 
-# In[ ]:
+# In[9]:
 
 
 def constantly(val: Any) -> Callable[[], Any]:
   return lambda : val
 
 
-# In[ ]:
+# In[10]:
 
 
 constantly_5 = constantly(5)
@@ -155,7 +155,7 @@ constantly_5()
 constantly_5()
 
 
-# In[ ]:
+# In[11]:
 
 
 # Fails with arguments
@@ -167,7 +167,7 @@ except Exception as exc:
 
 # ### A more robust version
 
-# In[ ]:
+# In[12]:
 
 
 # Functions with zero or more arguments that return anything.
@@ -181,13 +181,13 @@ constantly_7 = constantly(7)
 constantly_7
 
 
-# In[ ]:
+# In[13]:
 
 
 constantly_7()
 
 
-# In[ ]:
+# In[14]:
 
 
 constantly_7(13, 17)
@@ -199,7 +199,7 @@ constantly_7(13, 17)
 
 # ## Indexable Getters
 
-# In[ ]:
+# In[15]:
 
 
 # Function with one argument that returns anything.
@@ -209,7 +209,7 @@ Unary = Callable[[Any], Any]
 Indexable = Union[List, Tuple, Dict]
 
 
-# In[ ]:
+# In[16]:
 
 
 def at(i: Any) -> Unary:
@@ -221,7 +221,7 @@ f = at(2)
 f(a)
 
 
-# In[ ]:
+# In[17]:
 
 
 def indexed(x: Indexable) -> Unary:
@@ -235,7 +235,7 @@ f(2)
 
 # #### Works with Strings and Dicts
 
-# In[ ]:
+# In[18]:
 
 
 s = "abcdef"
@@ -243,7 +243,7 @@ indexed("abcdef")(4)
 at(3)(s)
 
 
-# In[ ]:
+# In[19]:
 
 
 d = {"a": 2, "b": 3}
@@ -253,7 +253,7 @@ at("b")(d)
 
 # ## Object Accessors
 
-# In[ ]:
+# In[20]:
 
 
 @dataclass
@@ -266,7 +266,7 @@ p = Position(2, 3)
 p
 
 
-# In[ ]:
+# In[21]:
 
 
 def getter(name: str, *default) -> Callable[[Any], Any]:
@@ -278,14 +278,14 @@ def object_get(obj: Any) -> Callable[[str], Any]:
     getattr(obj, name, *default)
 
 
-# In[ ]:
+# In[22]:
 
 
 g = getter('x')
 g(p)
 
 
-# In[ ]:
+# In[23]:
 
 
 h = object_get(p)
@@ -293,7 +293,7 @@ h('x')
 h('z', 999)
 
 
-# In[ ]:
+# In[24]:
 
 
 # Positions do not have a `z` attribute:
@@ -303,7 +303,7 @@ except AttributeError as x:
   print(repr(x))
 
 
-# In[ ]:
+# In[25]:
 
 
 def setter(name: str) -> Unary:
@@ -317,7 +317,7 @@ def accessor(name: str) -> Callable[[Any, Optional[Any]], Any]:
   return g
 
 
-# In[ ]:
+# In[26]:
 
 
 s = setter('x')
@@ -325,7 +325,7 @@ s(p, 5)
 p
 
 
-# In[ ]:
+# In[27]:
 
 
 a = accessor('x')
@@ -336,7 +336,7 @@ p
 
 # ## Other Adapters
 
-# In[ ]:
+# In[28]:
 
 
 def projection(key: Any, *default) -> Callable:
@@ -361,7 +361,7 @@ p({})
 # - random number generator
 # - reading lines from a file 
 
-# In[ ]:
+# In[29]:
 
 
 def counter(start: int = 0, increment: int = 1) -> Callable[[], int]:
@@ -429,7 +429,7 @@ c()
 # 
 # Wrap a function with tracing information:
 
-# In[ ]:
+# In[30]:
 
 
 # Wrap a function that logs input and output.
@@ -454,7 +454,7 @@ trace(avg)(2, 3)
 
 # # Stateful Combinators
 
-# In[ ]:
+# In[31]:
 
 
 def with_counter(f: Callable, i: int = 0) -> Callable:
@@ -477,7 +477,7 @@ f = with_counter(multiply, 21)
 # 
 # It tracks indention with a `trace_indent` global variable.
 
-# In[ ]:
+# In[32]:
 
 
 trace_indent = 0                                             # <-- GLOBAL STATE
@@ -507,7 +507,7 @@ trace(avg)(2, 3)
 
 # # Predicates
 
-# In[ ]:
+# In[33]:
 
 
 # Functions with zero or more arguments that return a boolean.
@@ -527,7 +527,7 @@ is_string(3)
 
 # # Predicate Combinators
 
-# In[ ]:
+# In[34]:
 
 
 # Functions that take a Predicate and return a new Predicate.
@@ -554,7 +554,7 @@ g(3)
 # 
 # In other words, a method is a function partially applied to its receiver.
 
-# In[ ]:
+# In[35]:
 
 
 a = 2
@@ -568,7 +568,7 @@ f(b)
 
 # ## Generic Partial Application
 
-# In[ ]:
+# In[36]:
 
 
 def partial(f: Callable, *args, **kwargs) -> Callable:
@@ -586,7 +586,7 @@ g = partial(add_and_multiply, 2)
 g(3, 5)
 
 
-# In[ ]:
+# In[37]:
 
 
 def partial_right(f: Callable, *args, **kwargs) -> Callable:
@@ -606,7 +606,7 @@ g(3, 5)
 
 # # Composition
 
-# In[ ]:
+# In[38]:
 
 
 def compose(*callables) -> Variadic:
@@ -630,7 +630,7 @@ h("abc")
 h(5)
 
 
-# In[ ]:
+# In[39]:
 
 
 def multiply_by_3(x):
@@ -642,7 +642,7 @@ h = compose(plus_three, multiply_by_3)
 h(5)
 
 
-# In[ ]:
+# In[40]:
 
 
 def juxt(*fs):
@@ -662,7 +662,7 @@ map(juxt(identity, negative, partial(repeat, 3)), [2, 3, 5, 7])
 
 # # Iterative Combinators
 
-# In[ ]:
+# In[41]:
 
 
 def fixed_point(f: Unary) -> Unary:
@@ -684,7 +684,7 @@ g = fixed_point(f)
 g(("abccabaaxabc", "abc"))
 
 
-# In[ ]:
+# In[42]:
 
 
 def Heron(S: float) -> float:
@@ -694,13 +694,13 @@ def Heron(S: float) -> float:
 fixed_point(trace(Heron(2.0)))(0.5)
 
 
-# In[ ]:
+# In[43]:
 
 
 math.sqrt(2.0)
 
 
-# In[ ]:
+# In[44]:
 
 
 def Collatz(n):
@@ -715,7 +715,7 @@ fixed_point(Collatz)(88)
 
 # ## Mapping functions over sequences
 
-# In[ ]:
+# In[45]:
 
 
 # Note: Python has a built-in `map` -- this is for illustration:
@@ -735,7 +735,7 @@ map(not_(is_string), items)
 map(plus_three, [3, 5, 7, 11])
 
 
-# In[ ]:
+# In[46]:
 
 
 # Restore the built-in:
@@ -744,7 +744,7 @@ map(plus_three, [3, 5, 7, 11])
 
 # ## Filtering Sequences with Predicates
 
-# In[ ]:
+# In[47]:
 
 
 def filter(f: Unary, xs: Iterable) -> Iterable:
@@ -758,7 +758,7 @@ filter(not_(is_string), items)
 
 # ## Reducing Sequences with Binary Functions
 
-# In[ ]:
+# In[48]:
 
 
 # Functions with two arguments that return anything.
@@ -778,7 +778,7 @@ a_list_of_strings = ["A", "List", 'Of', 'Strings']
 reduce(add, a_list_of_strings, "Here Is ")
 
 
-# In[ ]:
+# In[49]:
 
 
 items = [1, "string", 2, 3, "-and-more", 5]
@@ -795,7 +795,7 @@ reduce(add, filter(is_number, items), 0)
 reduce(add, filter(not_(is_string), items), 0)
 
 
-# In[ ]:
+# In[50]:
 
 
 def conjoin(a, b) -> Callable[[Any, Any], Tuple[Any, Any]]:
@@ -810,7 +810,7 @@ dict(map(with_counter(conjoin, 21), ["a", "b", "c", "d"]))
 
 # ## Map as a Reduction
 
-# In[ ]:
+# In[51]:
 
 
 def map_r(f: Unary, xs: Iterable) -> Iterable:
@@ -824,7 +824,7 @@ map_r(plus_three, [3, 5, 7, 11])
 
 # ## Filter as a Reduction
 
-# In[ ]:
+# In[52]:
 
 
 def filter_r(f: Unary, xs: Iterable) -> Iterable:
@@ -839,7 +839,7 @@ filter_r(is_string, items)
 
 # ## Mapcat (aka Flat-Map)
 
-# In[ ]:
+# In[53]:
 
 
 ConcatableUnary = Callable[[Any], Iterable]
@@ -858,7 +858,7 @@ duplicate_each_3_times(range(4, 7))
 
 # ## Manipulating Arguments
 
-# In[ ]:
+# In[54]:
 
 
 def reverse_args(f: Callable) -> Callable:
@@ -878,7 +878,7 @@ reduce(reverse_args(conjoin), [3, 5, 7], 2)
 
 # # Interlude
 
-# In[ ]:
+# In[55]:
 
 
 def modulo(modulus: int) -> Callable[[int], int]:
@@ -888,7 +888,7 @@ mod_3 = modulo(3)
 map(mod_3, range(10))
 
 
-# In[ ]:
+# In[56]:
 
 
 h = compose(indexed(a_list_of_strings), mod_3)
@@ -898,7 +898,7 @@ map(h, range(10))
 
 # ### Arity Reduction
 
-# In[ ]:
+# In[57]:
 
 
 def unary(f: Variadic) -> Unary:
@@ -915,7 +915,7 @@ h(a=1, b=2)
 
 # ## Error Handlers
 
-# In[ ]:
+# In[58]:
 
 
 def except_(f: Variadic, ex_class, error: Unary) -> Callable:
@@ -935,7 +935,7 @@ h('Nope')
 
 # ## Predicators
 
-# In[ ]:
+# In[59]:
 
 
 def re_pred(pat: str, re_func: Callable = re.search) -> Predicate:
@@ -947,7 +947,7 @@ re_pred("ab")("abc")
 re_pred("ab")("nope")
 
 
-# In[ ]:
+# In[60]:
 
 
 def default(f: Variadic, g: Variadic) -> Variadic:
@@ -962,7 +962,7 @@ def default(f: Variadic, g: Variadic) -> Variadic:
 
 # ## Logical Predicate Composers
 
-# In[ ]:
+# In[61]:
 
 
 def and_(f: Variadic, g: Variadic) -> Variadic:
@@ -991,7 +991,7 @@ items = ["hello", "not-a-word", 2, 3.5, None]
 map(juxt(identity, func), items)
 
 
-# In[ ]:
+# In[62]:
 
 
 Procedure = Callable[[], Any]
@@ -1008,7 +1008,7 @@ def if_(f: Variadic, g: Unary, h: Unary) -> Variadic:
 
 # ## Sequencing
 
-# In[ ]:
+# In[63]:
 
 
 def progn(*fs: Iterable[Callable]) -> Callable:
@@ -1021,7 +1021,7 @@ def progn(*fs: Iterable[Callable]) -> Callable:
   return g
 
 
-# In[ ]:
+# In[64]:
 
 
 def prog1(f0: Callable, *fs: Iterable[Callable]) -> Callable:
@@ -1034,7 +1034,7 @@ def prog1(f0: Callable, *fs: Iterable[Callable]) -> Callable:
   return g
 
 
-# In[ ]:
+# In[65]:
 
 
 def reverse_apply(x: Any) -> Callable:
