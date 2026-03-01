@@ -366,11 +366,11 @@ p({})
 
 def counter(start: int = 0, increment: int = 1) -> Callable[[], int]:
   "Generator of arithmetic sequences."
+  i = start - increment
   def g() -> int:
-    nonlocal start
-    result = start
-    start += increment
-    return result
+    nonlocal i
+    i += increment
+    return i
   return g
 
 c = counter(2, 3)
@@ -389,7 +389,7 @@ c()
 # 
 # ```python
 # def f(a: Any, ...):
-#   # `g` has access to `a`:
+#   # g() has access to a:
 #   def g(b: Any, ...):
 #     return do_something_with(a, b)
 #   return g
