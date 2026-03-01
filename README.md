@@ -14,3 +14,9 @@ Open notebook:
 ```bash
 open ./combinators-101.ipynb
 ```
+
+Before git commit:
+
+```bash
+./before-commit.sh
+```
