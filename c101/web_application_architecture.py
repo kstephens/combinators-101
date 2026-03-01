@@ -6,10 +6,7 @@
 # In[ ]:
 
 
-# https://stackoverflow.com/a/47024809/1141958
-from IPython.core.interactiveshell import InteractiveShell
-InteractiveShell.ast_node_interactivity = "all"
-
+import sys; sys.path.append('..')
 from c101.helpers import *
 
 

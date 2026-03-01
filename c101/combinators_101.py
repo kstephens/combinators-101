@@ -6,10 +6,7 @@
 # In[ ]:
 
 
-# https://stackoverflow.com/a/47024809/1141958
-from IPython.core.interactiveshell import InteractiveShell
-InteractiveShell.ast_node_interactivity = "all"
-
+import sys; sys.path.append('..')
 from c101.helpers import *
 
 
@@ -24,6 +21,8 @@ from c101.helpers import *
 # * functions that combine functions into new functions.
 # 
 # This workshop presents higher-order functional programming using Python.  While there are other programming which are specifically functional, Python is the most popular programming language in the world and it supports functional programming very well.
+
+# ----
 
 # # Types
 # 
@@ -58,6 +57,8 @@ def h(a: str, b: int) -> Tuple[int, int]:
 h("ab", 21)
 
 
+# ----
+
 # # First-Class Functions
 
 # can be:
@@ -66,7 +67,7 @@ h("ab", 21)
 # * arguments to functions
 # * returned as values
 
-# ## Functions dont have Names, Names have Functions!
+# ## Functions don't have Names, Names have Functions!
 
 # In[ ]:
 
@@ -126,6 +127,8 @@ plus_three = lambda x: x + 3   # Gave it a name.
 plus_three
 plus_three(2)
 
+
+# ----
 
 # # Closures
 
@@ -190,9 +193,11 @@ constantly_7()
 constantly_7(13, 17)
 
 
-# ## Adapters
+# ----
 
-# ### Indexable Getters
+# # Adapters
+
+# ## Indexable Getters
 
 # In[ ]:
 
@@ -246,7 +251,7 @@ indexed(d)("b")
 at("b")(d)
 
 
-# ### Object Accessors
+# ## Object Accessors
 
 # In[ ]:
 
@@ -343,6 +348,8 @@ p({"a": 2, "b": 3})
 p({})
 
 
+# ----
+
 # # Stateful Closures
 # 
 # Stateful closures are functions that have access to state that is not visible outside the function.
@@ -366,43 +373,28 @@ def counter(start: int = 0, increment: int = 1) -> Callable[[], int]:
     return result
   return g
 
-
-# In[ ]:
-
-
 c = counter(2, 3)
 c()
 c()
 c()
 
 
+# ----
+
 # # Second-Order Functions
 
-# 
 # Second-Order Functions return other functions.
 # 
-# They often have the form:
-# 
-# ----
+# Often have the form:
 # 
 # ```python
 # def f(a: Any, ...):
-#   return lambda b: Any, ...: \
-#     do_something_with(a, b)
-# ```
-# 
-# ----
-# 
-# or
-# 
-# ----
-# 
-# ```python
-# def f(a: Any, ...):
-#   def g(b: Any, ...):  # `g` has access to `a`
+#   # `g` has access to `a`:
+#   def g(b: Any, ...):
 #     return do_something_with(a, b)
 #   return g
 # ```
+
 # ----
 
 # # Combinators
@@ -415,25 +407,23 @@ c()
 # 
 # A combinator `c` may have the form:
 # 
-# ----
 # ```python
 # def c(f: Callable, ...) -> Callable:    # <-- COMBINATOR
 #   def g(b, ...):                        # <-- COMPOSITION
 #     return f(do_something_with(a, b))   # <-- APPLICATION and RESULT
 #   return g                              # <-- CLOSURE
 # ```
-# ----
 # 
 # or for brevity:
 # 
-# ----
 # ```python
 # def c(f: Callable, ...) -> Callable:
 #   return lambda b, ...: f(do_something_with(a, b))
 # ```
+
 # ----
 
-# ## Stateless Combinators
+# # Stateless Combinators
 
 # ### Tracing Combinator
 # 
@@ -459,6 +449,8 @@ add = trace(lambda x, y: x + y, "add")
 avg = trace(lambda x, y: add(x, y) / 2.0, "avg")
 trace(avg)(2, 3)
 
+
+# ----
 
 # # Stateful Combinators
 
@@ -488,10 +480,11 @@ f = with_counter(multiply, 21)
 # In[ ]:
 
 
-trace_indent = 0
+trace_indent = 0                                             # <-- GLOBAL STATE
+
 def trace(f: Callable, name: str | None = None) -> Callable:
     "Wrap a function that logs input and output."
-    name= name or f.__name__                                 # <-- LOCAL STATE
+    name = name or f.__name__                                # <-- LOCAL STATE
     def g(*args, **kwargs):                                  # <-- COMPOSITION
         global trace_indent                                  # <-- GLOBAL STATE
         indent = f"\u21e2 {"\u2502 " * trace_indent}"
@@ -510,11 +503,7 @@ avg = trace(lambda x, y: add(x, y) / 2.0, "avg")
 trace(avg)(2, 3)
 
 
-# # Function Composition
-
-# # Partial Application
-
-# 
+# ----
 
 # # Predicates
 
@@ -532,6 +521,10 @@ is_string("hello")
 is_string(3)
 
 
+# # Function Composition
+# 
+# Function Composition is when functions are combinined into new forms.
+
 # # Predicate Combinators
 
 # In[ ]:
@@ -544,32 +537,22 @@ def not_(f: Predicate) -> Predicate:
   'Returns a function that logically negates the result of the given function.'
   return lambda *args, **kwargs: not f(*args, **kwargs)
 
-h = not_(is_string)
-h("hello")
-h(3)
+g = not_(is_string)
+g("hello")
+g(3)
 
 
-# Partial application adds "default" values to a function.
-
-# In[ ]:
-
-
-def partial(f: Callable, *args, **kwargs) -> Callable:
-  'Returns a function that prepends `args` and merges `kwargs`.'
-  def g(*args2, **kwargs2):
-    return f(*(args + args2), **dict(kwargs, **kwargs2))
-  return g
-
-def add_and_multiply(a, b, c):
-  return (a + b) * c
-
-add_and_multiply(2, 3, 5)
-
-h = partial(add_and_multiply, 2)
-h(3, 5)
-
+# # Partial Application
+# 
+# Partial application adds "default" arguments.
 
 # ## Methods are Partially Applied Functions
+# 
+# The first argument of a method is the receiver.
+# 
+# The method is said to be "bound" to the object.
+# 
+# In other words, a method is a function partially applied to its receiver.
 
 # In[ ]:
 
@@ -578,9 +561,29 @@ a = 2
 b = 3
 a + b
 a.__add__(b)    # eqv. to `a + b`
-h = a.__add__
-h
-h(7)
+f = a.__add__
+f               # h is the partial application of (2).__add__
+f(b)
+
+
+# ## Generic Partial Application
+
+# In[ ]:
+
+
+def partial(f: Callable, *args, **kwargs) -> Callable:
+  'Returns a function that prepends `args` and merges `kwargs`.'
+  def g(*args2, **kwargs2):
+    return f(*(args + args2), **(kwargs | kwargs2))
+  return g
+
+def add_and_multiply(a, b, c):
+  return (a + b) * c
+
+add_and_multiply(2, 3, 5)
+
+g = partial(add_and_multiply, 2)
+g(3, 5)
 
 
 # In[ ]:
@@ -597,8 +600,64 @@ def add_and_multiply(a, b, c):
 
 add_and_multiply(2, 3, 5)
 
-h = partial_right(add_and_multiply, 2)
-h(3, 5)
+g = partial_right(add_and_multiply, 2)
+g(3, 5)
+
+
+# # Composition
+
+# In[ ]:
+
+
+def compose(*callables) -> Variadic:
+  """
+  Returns the composition one or more functions, in reverse order.
+  For example, `compose(g, f)(x, y)` is equivalent to `g(f(x, y))`.
+  """
+  f: Callable = callables[-1]
+  gs: Sequence[Unary] = tuple(reversed(callables[:-1]))
+  def h(*args, **kwargs):
+    result = f(*args, **kwargs)
+    for g in gs:
+      result = g(result)
+    return result
+  return h
+
+g = repr
+f = str
+h = compose(g, f)
+h("abc")
+h(5)
+
+
+# In[ ]:
+
+
+def multiply_by_3(x):
+  return x * 3
+
+plus_three(multiply_by_3(5))
+
+h = compose(plus_three, multiply_by_3)
+h(5)
+
+
+# In[ ]:
+
+
+def juxt(*fs):
+    "Returns a function that applies each f in fs to its arguments."
+    def g(*args, **kwargs):
+        return map(lambda f: f(*args, **kwargs), fs)
+    return g
+
+def negative(x):
+    return - x
+
+def repeat(n, x):
+    return [x] * n
+
+map(juxt(identity, negative, partial(repeat, 3)), [2, 3, 5, 7])
 
 
 # # Iterative Combinators
@@ -645,9 +704,9 @@ math.sqrt(2.0)
 
 
 def Collatz(n):
-    if n == 4:
-        return n
     ic(n)
+    if n == 1:
+        return n
     return n // 2 if n % 2 == 0 else n * 3 + 1
 fixed_point(Collatz)(88)
 
@@ -815,48 +874,6 @@ reverse_args(divide)(2, 3)
 
 reduce(reverse_args(add), " reversed ", a_list_of_strings)
 reduce(reverse_args(conjoin), 2, [3, 5, 7])
-
-
-# In[ ]:
-
-
-def compose(*callables) -> Variadic:
-  'Returns the composition one or more functions, in reverse order.'
-  'For example, `compose(g, f)(x, y)` is equivalent to `g(f(x, y))`.'
-  f: Callable = callables[-1]
-  gs: Sequence[Unary] = tuple(reversed(callables[:-1]))
-  def h(*args, **kwargs):
-    result = f(*args, **kwargs)
-    for g in gs:
-      result = g(result)
-    return result
-  return h
-
-def multiply_by_3(x):
-  return x * 3
-
-plus_three(multiply_by_3(5))
-
-h = compose(plus_three, multiply_by_3)
-h(5)
-
-
-# In[ ]:
-
-
-def juxt(*fs):
-    "Returns a function that applies each f in fs to its arguments."
-    def g(*args, **kwargs):
-        return map(lambda f: f(*args, **kwargs), fs)
-    return g
-
-def negative(x):
-    return - x
-
-def repeat(n, x):
-    return [x] * n
-
-map(juxt(identity, negative, partial(repeat, 3)), [2, 3, 5, 7])
 
 
 # # Interlude
