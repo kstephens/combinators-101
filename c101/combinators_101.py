@@ -684,20 +684,21 @@ g = fixed_point(f)
 g(("abccabaaxabc", "abc"))
 
 
-# In[42]:
+# In[ ]:
 
 
 def Heron(S: float) -> float:
     def g(x):
         return (x + S / x) / 2.0
     return g
-fixed_point(trace(Heron(2.0)))(0.5)
 
-
-# In[43]:
-
+def sqrt(S: float) -> float:
+    S = float(S)
+    return fixed_point(trace(Heron(S)))(S / 2)
 
 math.sqrt(2.0)
+sqrt(50.0)
+math.sqrt(50.0)
 
 
 # In[44]:
