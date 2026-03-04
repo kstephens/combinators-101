@@ -3,11 +3,10 @@
 
 # # (Imports)
 
-# In[1]:
+# In[ ]:
 
 
-import sys; sys.path.append('..')
-from c101.helpers import *
+get_ipython().run_cell_magic('capture', 'import_io', "import sys; sys.path.append('..')\nfrom c101.helpers import *\nimport operator as op\nimport inspect\n")
 
 
 # # Combinators-101
@@ -401,9 +400,10 @@ c()
 # 
 # Combinators:
 # 
-# * are functions that construct closures from other functions.
-# * provides a powerful mechanism for reusing logic...
-#   without having to anticpate the future.
+# * are second-order functions that construct closures from other functions.
+# * provide a powerful mechanism for reusing logic.
+# * hide information.
+# * create explicit interfaces with ease.
 # 
 # A combinator `c` may have the form:
 # 
@@ -425,11 +425,38 @@ c()
 
 # # Stateless Combinators
 
-# ### Tracing Combinator
+# ## Function Arity Helper
+
+# Some languages can have functions defintions with different parameter lists.  Python does not.
+# 
+# ```C++
+# void print(int);
+# void print(int, int)
+# ```
+
+# In[30]:
+
+
+def arity(*funcs):
+  "Returns a function that dispatches based on the arity of the functions given and the arguments from the caller."
+  funcs = tuple([(f, len(inspect.signature(f).parameters)) for f in funcs])
+  def g(*args):
+    for f, n in funcs:
+      if len(args) == n:
+        return f(*args)
+    raise RuntimeError(f"nargs {len(args)!r} : {funcs!r}")
+  return g
+
+f = arity(op.neg, op.sub)
+f(2)      ;  op.neg(2)
+f(11, 5)  ;  op.sub(11, 5)
+
+
+# ## Tracing Combinator
 # 
 # Wrap a function with tracing information:
 
-# In[30]:
+# In[31]:
 
 
 # Wrap a function that logs input and output.
@@ -445,24 +472,36 @@ def trace(f: Callable, name: str | None = None) -> Callable:  # <-- COMBINATOR
 def format_args(name, args, kwargs):
     return f"{name}(" + ', '.join([repr(x) for x in args] + [f"{k!r}={v!r}" for k, v in kwargs.items()]) + ")"
 
+
+# In[32]:
+
+
 add = trace(lambda x, y: x + y, "add")
-avg = trace(lambda x, y: add(x, y) / 2.0, "avg")
-trace(avg)(2, 3)
+f = trace(lambda x, y: add(x, y) / y, "f")
+f(2, 3)
+try:
+    f(2, 0)
+except Exception as e:
+    print(e)
 
 
 # ----
 
 # # Stateful Combinators
 
-# In[31]:
+# In[ ]:
 
 
 def with_counter(f: Callable, i: int = 0) -> Callable:
   'Returns a Callable that applies a counter to f.'
-  c = counter(i)                         # <-- STATEFUL CLOSURE AS STATE
+  c = counter(i)                         # <-- LOCAL STATE
   def g(*args, **kwargs):                # <-- COMBINATION
     return f(c(), *args, **kwargs)       # <-- COMPOSITION and RESULT
   return g                               # <-- CLOSURE
+
+
+# In[34]:
+
 
 def multiply(x, y):
   return x * y
@@ -477,9 +516,13 @@ f = with_counter(multiply, 21)
 # 
 # It tracks indention with a `trace_indent` global variable.
 
-# In[108]:
+# In[35]:
 
 
+color_ = "\033[0m"
+color_r = "\033[38;2;200;50;50m"
+color_g = "\033[38;2;40;180;40m"
+color_b = "\033[38;2;120;120;255m"
 trace_indent = 0                                             # <-- GLOBAL STATE
 
 def trace(f: Callable, name: str | None = None) -> Callable:
@@ -487,38 +530,45 @@ def trace(f: Callable, name: str | None = None) -> Callable:
     name = name or f.__name__                                # <-- LOCAL STATE
     def g(*args, **kwargs):                                  # <-- COMPOSITION
         global trace_indent                                  # <-- GLOBAL STATE
-        _ = "\033[0m"
-        r = "\033[38;2;200;50;50m"
-        g = "\033[38;2;40;180;40m"
-        b = "\033[38;2;120;120;255m"
         ind = f"\u21e2 {"\u2502 " * trace_indent}"
-        print(f"{g}{ind}{_}{format_args(name, args, kwargs)}")
+        print(f"{color_g}{ind}{color_}{format_args(name, args, kwargs)}")
         try:
+            # Increase indent:
             trace_indent += 1
             result = f(*args, **kwargs)                      # <--- APPLICATION
         except Exception as exc:
-            print(f"{r}{ind}\u2570\u2574\u29b8 {exc!r}{_}")
+            print(f"{color_r}{ind}\u2570\u2574\u29b8 {exc!r}{color_}")
             raise exc
         finally:
+            # Decrease indent:
             trace_indent -= 1
-        print(f"{g}{ind}\u2570\u2574{_} {b}{result!r}{_}")
+        print(f"{color_b}{ind}\u2570\u2574{color_} {color_b}{result!r}{color_}")
         return result                                        # <--- RESULT
     return g                                                 # <--- CLOSURE
 
+
+# In[79]:
+
+
 add = trace(lambda x, y: x + y, "add")
-avg = trace(lambda x, y: add(x, y) / (2.0 * y), "avg")
-trace(avg)(2, 3)
+f = trace(lambda x, y: add(x, y) / y, "f")
+f(2, 3)
+
+
+# In[80]:
+
+
 try:
-    trace(avg)(2, 0)
-except:
-    pass
+    f(2, 0)
+except Exception as e:
+    print(e)
 
 
 # ----
 
 # # Predicates
 
-# In[33]:
+# In[37]:
 
 
 # Functions with zero or more arguments that return a boolean.
@@ -534,11 +584,11 @@ is_string(3)
 
 # # Function Composition
 # 
-# Function Composition is when functions are combinined into new forms.
+# Functions are combinined into new functions.
 
-# # Predicate Combinators
+# ## Predicate Combinators
 
-# In[34]:
+# In[38]:
 
 
 # Functions that take a Predicate and return a new Predicate.
@@ -559,17 +609,16 @@ g(3)
 
 # ## Methods are Partially Applied Functions
 # 
-# The first argument of a method is the receiver.
+# The first "hidden" argument of a method is the receiver.
 # 
-# The method is said to be "bound" to the object.
+# The method is "bound" to the object.
 # 
 # In other words, a method is a function partially applied to its receiver.
 
-# In[35]:
+# In[39]:
 
 
-a = 2
-b = 3
+a, b = 2, 3
 a + b
 a.__add__(b)    # eqv. to `a + b`
 f = a.__add__
@@ -579,7 +628,7 @@ f(b)
 
 # ## Generic Partial Application
 
-# In[36]:
+# In[72]:
 
 
 def partial(f: Callable, *args, **kwargs) -> Callable:
@@ -587,6 +636,10 @@ def partial(f: Callable, *args, **kwargs) -> Callable:
   def g(*args2, **kwargs2):
     return f(*(args + args2), **(kwargs | kwargs2))
   return g
+
+
+# In[73]:
+
 
 def add_and_multiply(a, b, c):
   return (a + b) * c
@@ -597,7 +650,7 @@ g = partial(add_and_multiply, 2)
 g(3, 5)
 
 
-# In[37]:
+# In[74]:
 
 
 def partial_right(f: Callable, *args, **kwargs) -> Callable:
@@ -606,10 +659,9 @@ def partial_right(f: Callable, *args, **kwargs) -> Callable:
     return f(*(args2 + args), **(kwargs2 | kwargs))
   return g
 
-def add_and_multiply(a, b, c):
-  return (a + b) * c
 
-add_and_multiply(2, 3, 5)
+# In[75]:
+
 
 g = partial_right(add_and_multiply, 2)
 g(3, 5)
@@ -617,7 +669,7 @@ g(3, 5)
 
 # # Composition
 
-# In[38]:
+# In[42]:
 
 
 def compose(*callables) -> Variadic:
@@ -634,26 +686,42 @@ def compose(*callables) -> Variadic:
     return result
   return h
 
-g = repr
-f = str
-h = compose(g, f)
+
+# In[43]:
+
+
+h = compose(str)
 h("abc")
 h(5)
 
 
-# In[39]:
+# In[44]:
+
+
+h = compose(repr, str)
+h("abc")
+h(5)
+
+
+# In[45]:
+
+
+len(repr(str("abc")))
+h = compose(len, repr, str)
+h("abc")
+
+
+# In[46]:
 
 
 def multiply_by_3(x):
   return x * 3
 
-plus_three(multiply_by_3(5))
-
 h = compose(plus_three, multiply_by_3)
 h(5)
 
 
-# In[40]:
+# In[47]:
 
 
 def juxt(*fs):
@@ -673,7 +741,7 @@ map(juxt(identity, negative, partial(repeat, 3)), [2, 3, 5, 7])
 
 # # Iterative Combinators
 
-# In[70]:
+# In[48]:
 
 
 def fixed_point(f: Unary) -> Unary:
@@ -694,7 +762,7 @@ g = fixed_point(trace(f))
 g(("abccabaaxabc", "abc"))
 
 
-# In[ ]:
+# In[78]:
 
 
 def Heron(S: float) -> float:
@@ -706,26 +774,25 @@ def sqrt(S: float) -> float:
     S = float(S)
     return fixed_point(trace(Heron(S)))(S / 2)
 
-math.sqrt(2.0)
 sqrt(50.0)
 math.sqrt(50.0)
 
 
-# In[71]:
+# In[77]:
 
 
 def Collatz(n):
     if n == 1:
         return n
     return n // 2 if n % 2 == 0 else n * 3 + 1
-fixed_point(trace(Collatz))(88)
+fixed_point(trace(Collatz))(53)
 
 
 # # Manipulating Sequences
 
 # ## Mapping functions over sequences
 
-# In[45]:
+# In[51]:
 
 
 # Note: Python has a built-in `map` -- this is for illustration:
@@ -745,7 +812,7 @@ map(not_(is_string), items)
 map(plus_three, [3, 5, 7, 11])
 
 
-# In[46]:
+# In[52]:
 
 
 # Restore the built-in:
@@ -754,7 +821,7 @@ map(plus_three, [3, 5, 7, 11])
 
 # ## Filtering Sequences with Predicates
 
-# In[47]:
+# In[53]:
 
 
 def filter(f: Unary, xs: Iterable) -> Iterable:
@@ -768,7 +835,7 @@ filter(not_(is_string), items)
 
 # ## Reducing Sequences with Binary Functions
 
-# In[48]:
+# In[54]:
 
 
 # Functions with two arguments that return anything.
@@ -788,7 +855,7 @@ a_list_of_strings = ["A", "List", 'Of', 'Strings']
 reduce(add, a_list_of_strings, "Here Is ")
 
 
-# In[49]:
+# In[55]:
 
 
 items = [1, "string", 2, 3, "-and-more", 5]
@@ -805,7 +872,7 @@ reduce(add, filter(is_number, items), 0)
 reduce(add, filter(not_(is_string), items), 0)
 
 
-# In[50]:
+# In[56]:
 
 
 def conjoin(a, b) -> Callable[[Any, Any], Tuple[Any, Any]]:
@@ -820,7 +887,7 @@ dict(map(with_counter(conjoin, 21), ["a", "b", "c", "d"]))
 
 # ## Map as a Reduction
 
-# In[51]:
+# In[57]:
 
 
 def map_r(f: Unary, xs: Iterable) -> Iterable:
@@ -834,7 +901,7 @@ map_r(plus_three, [3, 5, 7, 11])
 
 # ## Filter as a Reduction
 
-# In[52]:
+# In[58]:
 
 
 def filter_r(f: Unary, xs: Iterable) -> Iterable:
@@ -849,7 +916,7 @@ filter_r(is_string, items)
 
 # ## Mapcat (aka Flat-Map)
 
-# In[53]:
+# In[59]:
 
 
 ConcatableUnary = Callable[[Any], Iterable]
@@ -868,7 +935,7 @@ duplicate_each_3_times(range(4, 7))
 
 # ## Manipulating Arguments
 
-# In[54]:
+# In[60]:
 
 
 def reverse_args(f: Callable) -> Callable:
@@ -888,7 +955,7 @@ reduce(reverse_args(conjoin), [3, 5, 7], 2)
 
 # # Interlude
 
-# In[55]:
+# In[61]:
 
 
 def modulo(modulus: int) -> Callable[[int], int]:
@@ -898,7 +965,7 @@ mod_3 = modulo(3)
 map(mod_3, range(10))
 
 
-# In[56]:
+# In[62]:
 
 
 h = compose(indexed(a_list_of_strings), mod_3)
@@ -908,7 +975,7 @@ map(h, range(10))
 
 # ### Arity Reduction
 
-# In[57]:
+# In[63]:
 
 
 def unary(f: Variadic) -> Unary:
@@ -925,7 +992,7 @@ h(a=1, b=2)
 
 # ## Error Handlers
 
-# In[58]:
+# In[64]:
 
 
 def except_(f: Variadic, ex_class, error: Unary) -> Callable:
@@ -945,7 +1012,7 @@ h('Nope')
 
 # ## Predicators
 
-# In[59]:
+# In[65]:
 
 
 def re_pred(pat: str, re_func: Callable = re.search) -> Predicate:
@@ -957,7 +1024,7 @@ re_pred("ab")("abc")
 re_pred("ab")("nope")
 
 
-# In[60]:
+# In[66]:
 
 
 def default(f: Variadic, g: Variadic) -> Variadic:
@@ -972,7 +1039,7 @@ def default(f: Variadic, g: Variadic) -> Variadic:
 
 # ## Logical Predicate Composers
 
-# In[61]:
+# In[67]:
 
 
 def and_(f: Variadic, g: Variadic) -> Variadic:
@@ -1001,7 +1068,7 @@ items = ["hello", "not-a-word", 2, 3.5, None]
 map(juxt(identity, func), items)
 
 
-# In[62]:
+# In[68]:
 
 
 Procedure = Callable[[], Any]
@@ -1018,7 +1085,7 @@ def if_(f: Variadic, g: Unary, h: Unary) -> Variadic:
 
 # ## Sequencing
 
-# In[63]:
+# In[69]:
 
 
 def progn(*fs: Iterable[Callable]) -> Callable:
@@ -1031,7 +1098,7 @@ def progn(*fs: Iterable[Callable]) -> Callable:
   return g
 
 
-# In[64]:
+# In[70]:
 
 
 def prog1(f0: Callable, *fs: Iterable[Callable]) -> Callable:
@@ -1044,7 +1111,7 @@ def prog1(f0: Callable, *fs: Iterable[Callable]) -> Callable:
   return g
 
 
-# In[65]:
+# In[71]:
 
 
 def reverse_apply(x: Any) -> Callable:

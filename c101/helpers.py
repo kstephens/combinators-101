@@ -1,4 +1,4 @@
-from typing import Any, Optional, Union, List, Tuple, Dict, Iterable, Mapping, Callable, Type, Literal, IO
+from typing import Any, Optional, Union, List, Tuple, Dict, Iterable, Mapping, Callable, Type, Literal, IO, NoReturn, Self
 from numbers import Number
 from collections.abc import Collection, Sequence
 from dataclasses import dataclass, field
@@ -12,8 +12,10 @@ import functools
 import math
 from pprint import pformat
 import dis
+import inspect
 from icecream import ic
 from http import HTTPStatus
+# from abc import abstractclass
 
 
 ic.configureOutput(prefix="  #>> ")
@@ -35,9 +37,15 @@ Unary = Callable[[Any], Any]
 # Functions with two arguments that return anything.
 Binary = Callable[[Any, Any], Any]
 
+# Functions with zero or more arguments that return anything.
+Variadic = Callable[..., Any]
+
 # Functions with zero or more arguments that return a boolean.
 Predicate = Callable[..., bool]
 
+
+def identity(x):
+   return x
 
 # This forces map to list:
 map_ = map
@@ -50,10 +58,32 @@ def reduce(f: Binary, xs: Iterable, init: Any) -> Any:
     init = f(init, x)
   return init
 
+def compose(*callables) -> Variadic:
+  """
+  Returns the composition one or more functions, in reverse order.
+  For example, `compose(g, f)(x, y)` is equivalent to `g(f(x, y))`.
+  """
+  f: Callable = callables[-1]
+  gs: Iterable[Unary] = tuple(reversed(callables[:-1]))
+  def h(*args, **kwargs):
+    result = f(*args, **kwargs)
+    for g in gs:
+      result = g(result)
+    return result
+  return h
 
 #####################################
 # See combinators_101.ipynb
 
+def format_args(name, args, kwargs):
+    return f"{name}(" + ', '.join([repr(x) for x in args] + [f"{k!r}={v!r}" for k, v in kwargs.items()]) + ")"
+
+#####################################
+
+color_ = "\033[0m"
+color_r = "\033[38;2;200;50;50m"
+color_g = "\033[38;2;40;180;40m"
+color_b = "\033[38;2;120;120;255m"
 trace_indent = 0                                             # <-- GLOBAL STATE
 
 def trace(f: Callable, name: str | None = None) -> Callable:
@@ -61,30 +91,23 @@ def trace(f: Callable, name: str | None = None) -> Callable:
     name = name or f.__name__                                # <-- LOCAL STATE
     def g(*args, **kwargs):                                  # <-- COMPOSITION
         global trace_indent                                  # <-- GLOBAL STATE
-        _ = "\033[0m"
-        r = "\033[38;2;200;50;50m"
-        g = "\033[38;2;40;180;40m"
-        b = "\033[38;2;120;120;255m"
         ind = f"\u21e2 {"\u2502 " * trace_indent}"
-        print(f"{g}{ind}{_}{format_args(name, args, kwargs)}")
+        print(f"{color_g}{ind}{color_}{format_args(name, args, kwargs)}")
         try:
+            # Increase indent:
             trace_indent += 1
             result = f(*args, **kwargs)                      # <--- APPLICATION
         except Exception as exc:
-            print(f"{r}{ind}\u2570\u2574\u29b8 {exc!r}{_}")
+            print(f"{color_r}{ind}\u2570\u2574\u29b8 {exc!r}{color_}")
             raise exc
         finally:
+            # Decrease indent:
             trace_indent -= 1
-        print(f"{g}{ind}\u2570\u2574{_} {b}{result!r}{_}")
+        print(f"{color_b}{ind}\u2570\u2574{color_} {color_b}{result!r}{color_}")
         return result                                        # <--- RESULT
     return g                                                 # <--- CLOSURE
 
-
-#####################################
-
-
-def format_args(name, args, kwargs):
-    return f"{name}(" + ', '.join([repr(x) for x in args] + [f"{k!r}={v!r}" for k, v in kwargs.items()]) + ")"
+####################################
 
 
 def re_pred(pat: str, re_func: Callable = re.search) -> Predicate:
@@ -101,3 +124,7 @@ def http_status_line(code: int) -> str:
 
 # def export_to(env):
 #     env.update(globals())
+
+
+####################################
+

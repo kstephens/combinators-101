@@ -3,33 +3,17 @@
 
 # # (Imports)
 
-# In[ ]:
+# In[1]:
 
 
-import sys; sys.path.append('..')
-from c101.helpers import *
-
-
-# # Types
-
-# In[ ]:
-
-
-# Functions with zero or more arguments that return anything.
-Variadic = Callable[..., Any]
-
-# Function with one argument that returns anything.
-Unary = Callable[[Any], Any]
-
-# A value `x` that supports `x[i]`:
-Indexable = Union[List, Tuple, Dict]
-
-Predicate = Callable[..., bool]
+get_ipython().run_cell_magic('capture', 'import_io', "import sys; sys.path.append('..')\nfrom c101.helpers import *\nimport c101.helpers\nmap = c101.helpers.map\nfrom c101.combinators_101 import *\nfrom functools import reduce\n")
 
 
 # # Parser Combinators
 
-# In[ ]:
+# ## Types and Protocols
+
+# In[2]:
 
 
 # Parser input: a sequence of lexemes:
@@ -42,7 +26,7 @@ Parsed = Tuple[Any, Input]
 Parser = Callable[[Input], Parsed | None]
 
 
-# In[ ]:
+# In[3]:
 
 
 def at(i: Any) -> Unary:
@@ -50,7 +34,7 @@ def at(i: Any) -> Unary:
   return lambda x: x[i]
 
 
-# In[ ]:
+# In[4]:
 
 
 def show_match(p: Parser) -> Variadic:
@@ -59,7 +43,7 @@ def show_match(p: Parser) -> Variadic:
   return g
 
 
-# In[ ]:
+# In[5]:
 
 
 first = at(0)
@@ -80,7 +64,7 @@ h(['a'])
 h(['b', 2])
 
 
-# In[ ]:
+# In[6]:
 
 
 def which(p: Predicate) -> Parser:
@@ -116,7 +100,7 @@ g([False])
 
 # # Sequence Parsers
 
-# In[ ]:
+# In[7]:
 
 
 ParsedSequence = Tuple[Sequence, Input]
@@ -137,7 +121,7 @@ g([2])
 g(['a', 'b'])
 
 
-# In[ ]:
+# In[8]:
 
 
 def zero_or_more(p: Parser) -> SequenceParser:
@@ -159,7 +143,7 @@ g(['a', 'b', 2])
 g(['a', 'b', 3, 5])
 
 
-# In[ ]:
+# In[9]:
 
 
 def one_or_more(p: Parser) -> SequenceParser:
@@ -171,7 +155,7 @@ def one_or_more(p: Parser) -> SequenceParser:
   return g
 
 
-# In[ ]:
+# In[10]:
 
 
 g = one_or_more(which(is_string))
@@ -183,7 +167,7 @@ g(['a', 'b', 2])
 g(['a', 'b', 3, 5])
 
 
-# In[ ]:
+# In[11]:
 
 
 def sequence_of(*parsers) -> SequenceParser:
@@ -208,7 +192,7 @@ g(['a', 'b', 2])
 g(['a', 'b', 3, 5])
 
 
-# In[ ]:
+# In[12]:
 
 
 g = sequence_of(one_or_more(which(is_number)))
@@ -219,7 +203,7 @@ g([2, 3])
 g([2, 3, False])
 
 
-# In[ ]:
+# In[13]:
 
 
 g = sequence_of(one(which(is_string)), one_or_more(which(is_number)))
@@ -236,7 +220,7 @@ g(['a', 2, 3, False, 'more'])
 
 # # Parser Grammar
 
-# In[ ]:
+# In[14]:
 
 
 def take_while(f: Unary) -> Unary:
@@ -266,7 +250,7 @@ env
 
 # # Lexical Scanning
 
-# In[ ]:
+# In[15]:
 
 
 def eat(rx: str):
@@ -284,7 +268,7 @@ def lexeme(pat: str, post = at(0)):
   return g
 
 
-# In[ ]:
+# In[16]:
 
 
 def grammar_parser():
@@ -360,7 +344,7 @@ def grammar_parser():
   return g
 
 
-# In[ ]:
+# In[17]:
 
 
 grammar_tests = [
@@ -391,7 +375,7 @@ for grammar_test in grammar_tests:
 
 # # Grammar Compiler
 
-# In[ ]:
+# In[18]:
 
 
 def compile_grammar(gram, parser_name):
