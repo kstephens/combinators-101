@@ -3,10 +3,10 @@
 
 # # (Imports)
 
-# In[1]:
+# In[ ]:
 
 
-get_ipython().run_cell_magic('capture', 'import_io', "import sys; sys.path.append('..')\nfrom c101.helpers import *\nimport c101.helpers\nmap = c101.helpers.map\nfrom c101.combinators_101 import *\nfrom functools import reduce\n")
+get_ipython().run_cell_magic('capture', 'import_io', "import sys; sys.path.append('..')\nfrom c101.helpers import *\nimport c101.helpers\nmap = c101.helpers.map\nfrom c101.combinators_101 import *\nfrom functools import reduce\nimport logging\nimport re\n")
 
 
 # # Parser Combinators
@@ -34,16 +34,17 @@ def at(i: Any) -> Unary:
   return lambda x: x[i]
 
 
-# In[4]:
+# In[38]:
 
 
 def show_match(p: Parser) -> Variadic:
   def g(input: Input):
-    return (p(input) or False, '<=', input)
+    print(f"{p(input) or False!r} <= {p.__name__}({input!r})")
+    return None
   return g
 
 
-# In[5]:
+# In[ ]:
 
 
 first = at(0)
@@ -59,7 +60,7 @@ def equals(x) -> Parser:
       return y, rest(input)
   return g
 
-h = equals('a')
+h = show_match(equals('a'))
 h(['a'])
 h(['b', 2])
 
@@ -100,7 +101,7 @@ g([False])
 
 # # Sequence Parsers
 
-# In[7]:
+# In[31]:
 
 
 ParsedSequence = Tuple[Sequence, Input]
@@ -115,9 +116,9 @@ def one(p: Parser) -> SequenceParser:
   return g
 
 g = one(which(is_string))
-g([])
+g([]) is None
 g(['a'])
-g([2])
+g([2]) is None
 g(['a', 'b'])
 
 
@@ -167,7 +168,7 @@ g(['a', 'b', 2])
 g(['a', 'b', 3, 5])
 
 
-# In[11]:
+# In[26]:
 
 
 def sequence_of(*parsers) -> SequenceParser:
@@ -184,46 +185,47 @@ def sequence_of(*parsers) -> SequenceParser:
   return g
 
 g = sequence_of(one(which(is_string)), one(which(is_string)))
-g([])
-g(['a'])
-g([2])
 g(['a', 'b'])
 g(['a', 'b', 2])
 g(['a', 'b', 3, 5])
+g([]) is None
+g(['a']) is None
+g([2]) is None
 
 
-# In[12]:
+# In[28]:
 
 
 g = sequence_of(one_or_more(which(is_number)))
-g([])
-g(['a'])
-g([2])
 g([2, 3])
 g([2, 3, False])
+g([]) is None
+g([2])
+g(['a']) is None
 
 
-# In[13]:
+# In[25]:
 
 
 g = sequence_of(one(which(is_string)), one_or_more(which(is_number)))
-g([])
-g(['a'])
-g([2])
-g(['a', 'b'])
 g(['a', 2])
 g(['a', 2, 3])
 g(['a', 2, 'b', 3])
 g(['a', 2, 3, False])
 g(['a', 2, 3, False, 'more'])
+g([]) is None
+g(['a']) is None
+g([2]) is None
+g(['a', 'b']) is None
 
 
 # # Parser Grammar
 
-# In[14]:
+# In[ ]:
 
 
 def take_while(f: Unary) -> Unary:
+  "Accumulate until not f(seq)."
   def g(seq):
     acc = []
     while seq and (x := f(seq[0])):

@@ -7836,6 +7836,8 @@ a.anchor-link {
 <span class="nb">map</span> <span class="o">=</span> <span class="n">c101</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">map</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">c101.combinators_101</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 </pre></div>
 </div>
 </div>
@@ -7856,9 +7858,10 @@ a.anchor-link {
 <span class="ansi-green-fg">      4</span> <span style="color: rgb(0,135,0)">map</span> = c101.helpers.map
 <span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">5</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">c101</span><span class="ansi-blue-intense-fg ansi-bold">.</span><span class="ansi-blue-intense-fg ansi-bold">combinators_101</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> *
 <span class="ansi-green-fg">      6</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">functools</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> reduce
+<span class="ansi-green-fg">      7</span> <span class="ansi-bold" style="color: rgb(0,135,0)">import</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">logging</span>
 
 <span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/local/src/combinators-101/c101/../c101/combinators_101.py:51</span>
-<span class="ansi-green-fg">      9</span> get_ipython().run_cell_magic(<span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg">capture</span><span class="ansi-yellow-fg">'</span>, <span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg">import_io</span><span class="ansi-yellow-fg">'</span>, <span class="ansi-yellow-fg">"</span><span class="ansi-yellow-fg">import sys; sys.path.append(</span><span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg">..</span><span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg">)</span><span class="ansi-bold" style="color: rgb(175,95,0)">\n</span><span class="ansi-yellow-fg">from c101.helpers import *</span><span class="ansi-bold" style="color: rgb(175,95,0)">\n</span><span class="ansi-yellow-fg">import operator as op</span><span class="ansi-bold" style="color: rgb(175,95,0)">\n</span><span class="ansi-yellow-fg">import inspect</span><span class="ansi-bold" style="color: rgb(175,95,0)">\n</span><span class="ansi-yellow-fg">"</span>)
+<span class="ansi-green-fg">      9</span> get_ipython().run_cell_magic(<span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg">capture</span><span class="ansi-yellow-fg">'</span>, <span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg">import_io</span><span class="ansi-yellow-fg">'</span>, <span class="ansi-yellow-fg">"</span><span class="ansi-yellow-fg">import sys; sys.path.append(</span><span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg">..</span><span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg">)</span><span class="ansi-bold" style="color: rgb(175,95,0)">\n</span><span class="ansi-yellow-fg">from c101.helpers import *</span><span class="ansi-bold" style="color: rgb(175,95,0)">\n</span><span class="ansi-yellow-fg">import operator as op</span><span class="ansi-bold" style="color: rgb(175,95,0)">\n</span><span class="ansi-yellow-fg">import inspect</span><span class="ansi-bold" style="color: rgb(175,95,0)">\n</span><span class="ansi-yellow-fg">from typing import Any, Optional, Union, List, Tuple, Dict, Iterable, Mapping, Callable, Type, Literal, IO, NoReturn, Self</span><span class="ansi-bold" style="color: rgb(175,95,0)">\n</span><span class="ansi-yellow-fg">"</span>)
 <span class="ansi-green-fg">     12</span> <span style="color: rgb(95,135,135)"># # Combinators-101</span>
 <span class="ansi-green-fg">     13</span> <span style="color: rgb(95,135,135)"># </span>
 <span class="ansi-green-fg">     14</span> <span style="color: rgb(95,135,135)"># This workshop is about building functions with functions.</span>
@@ -7942,7 +7945,8 @@ a.anchor-link {
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">show_match</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">Parser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Variadic</span><span class="p">:</span>
   <span class="k">def</span><span class="w"> </span><span class="nf">g</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Input</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">p</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">'&lt;='</span><span class="p">,</span> <span class="nb">input</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">p</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="kc">False</span><span class="si">!r}</span><span class="s2"> &lt;= </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="nb">input</span><span class="si">!r}</span><span class="s2">)"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
   <span class="k">return</span> <span class="n">g</span>
 </pre></div>
 </div>
@@ -7970,7 +7974,7 @@ a.anchor-link {
       <span class="k">return</span> <span class="n">y</span><span class="p">,</span> <span class="n">rest</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">g</span>
 
-<span class="n">h</span> <span class="o">=</span> <span class="n">equals</span><span class="p">(</span><span class="s1">'a'</span><span class="p">)</span>
+<span class="n">h</span> <span class="o">=</span> <span class="n">show_match</span><span class="p">(</span><span class="n">equals</span><span class="p">(</span><span class="s1">'a'</span><span class="p">))</span>
 <span class="n">h</span><span class="p">([</span><span class="s1">'a'</span><span class="p">])</span>
 <span class="n">h</span><span class="p">([</span><span class="s1">'b'</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 </pre></div>
@@ -7982,10 +7986,12 @@ a.anchor-link {
 <div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
 </div>
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
-<pre>('a', [])</pre>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>('a', []) &lt;= g(['a'])
+False &lt;= g(['b', 2])
+</pre>
 </div>
 </div>
 </div>
@@ -8099,9 +8105,9 @@ a.anchor-link {
   <span class="k">return</span> <span class="n">g</span>
 
 <span class="n">g</span> <span class="o">=</span> <span class="n">one</span><span class="p">(</span><span class="n">which</span><span class="p">(</span><span class="n">is_string</span><span class="p">))</span>
-<span class="n">g</span><span class="p">([])</span>
+<span class="n">g</span><span class="p">([])</span> <span class="ow">is</span> <span class="kc">None</span>
 <span class="n">g</span><span class="p">([</span><span class="s1">'a'</span><span class="p">])</span>
-<span class="n">g</span><span class="p">([</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">g</span><span class="p">([</span><span class="mi">2</span><span class="p">])</span> <span class="ow">is</span> <span class="kc">None</span>
 <span class="n">g</span><span class="p">([</span><span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">])</span>
 </pre></div>
 </div>
@@ -8115,7 +8121,19 @@ a.anchor-link {
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
 <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[7]:</div>
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
+<pre>True</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[7]:</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
 <pre>(['a'], [])</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[7]:</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
+<pre>True</pre>
 </div>
 </div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
@@ -8290,12 +8308,12 @@ a.anchor-link {
   <span class="k">return</span> <span class="n">g</span>
 
 <span class="n">g</span> <span class="o">=</span> <span class="n">sequence_of</span><span class="p">(</span><span class="n">one</span><span class="p">(</span><span class="n">which</span><span class="p">(</span><span class="n">is_string</span><span class="p">)),</span> <span class="n">one</span><span class="p">(</span><span class="n">which</span><span class="p">(</span><span class="n">is_string</span><span class="p">)))</span>
-<span class="n">g</span><span class="p">([])</span>
-<span class="n">g</span><span class="p">([</span><span class="s1">'a'</span><span class="p">])</span>
-<span class="n">g</span><span class="p">([</span><span class="mi">2</span><span class="p">])</span>
 <span class="n">g</span><span class="p">([</span><span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">])</span>
 <span class="n">g</span><span class="p">([</span><span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 <span class="n">g</span><span class="p">([</span><span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<span class="n">g</span><span class="p">([])</span> <span class="ow">is</span> <span class="kc">None</span>
+<span class="n">g</span><span class="p">([</span><span class="s1">'a'</span><span class="p">])</span> <span class="ow">is</span> <span class="kc">None</span>
+<span class="n">g</span><span class="p">([</span><span class="mi">2</span><span class="p">])</span> <span class="ow">is</span> <span class="kc">None</span>
 </pre></div>
 </div>
 </div>
@@ -8323,6 +8341,24 @@ a.anchor-link {
 <pre>(['a', 'b'], [3, 5])</pre>
 </div>
 </div>
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
+<pre>True</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
+<pre>True</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[11]:</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
+<pre>True</pre>
+</div>
+</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
@@ -8334,11 +8370,11 @@ a.anchor-link {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">g</span> <span class="o">=</span> <span class="n">sequence_of</span><span class="p">(</span><span class="n">one_or_more</span><span class="p">(</span><span class="n">which</span><span class="p">(</span><span class="n">is_number</span><span class="p">)))</span>
-<span class="n">g</span><span class="p">([])</span>
-<span class="n">g</span><span class="p">([</span><span class="s1">'a'</span><span class="p">])</span>
-<span class="n">g</span><span class="p">([</span><span class="mi">2</span><span class="p">])</span>
 <span class="n">g</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
 <span class="n">g</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+<span class="n">g</span><span class="p">([])</span> <span class="ow">is</span> <span class="kc">None</span>
+<span class="n">g</span><span class="p">([</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">g</span><span class="p">([</span><span class="s1">'a'</span><span class="p">])</span> <span class="ow">is</span> <span class="kc">None</span>
 </pre></div>
 </div>
 </div>
@@ -8351,12 +8387,6 @@ a.anchor-link {
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
 <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
-<pre>([2], [])</pre>
-</div>
-</div>
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
 <pre>([2, 3], [])</pre>
 </div>
 </div>
@@ -8364,6 +8394,24 @@ a.anchor-link {
 <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
 <pre>([2, 3, False], [])</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
+<pre>True</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
+<pre>([2], [])</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
+<pre>True</pre>
 </div>
 </div>
 </div>
@@ -8377,15 +8425,15 @@ a.anchor-link {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">g</span> <span class="o">=</span> <span class="n">sequence_of</span><span class="p">(</span><span class="n">one</span><span class="p">(</span><span class="n">which</span><span class="p">(</span><span class="n">is_string</span><span class="p">)),</span> <span class="n">one_or_more</span><span class="p">(</span><span class="n">which</span><span class="p">(</span><span class="n">is_number</span><span class="p">)))</span>
-<span class="n">g</span><span class="p">([])</span>
-<span class="n">g</span><span class="p">([</span><span class="s1">'a'</span><span class="p">])</span>
-<span class="n">g</span><span class="p">([</span><span class="mi">2</span><span class="p">])</span>
-<span class="n">g</span><span class="p">([</span><span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">])</span>
 <span class="n">g</span><span class="p">([</span><span class="s1">'a'</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 <span class="n">g</span><span class="p">([</span><span class="s1">'a'</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
 <span class="n">g</span><span class="p">([</span><span class="s1">'a'</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
 <span class="n">g</span><span class="p">([</span><span class="s1">'a'</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
 <span class="n">g</span><span class="p">([</span><span class="s1">'a'</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">'more'</span><span class="p">])</span>
+<span class="n">g</span><span class="p">([])</span> <span class="ow">is</span> <span class="kc">None</span>
+<span class="n">g</span><span class="p">([</span><span class="s1">'a'</span><span class="p">])</span> <span class="ow">is</span> <span class="kc">None</span>
+<span class="n">g</span><span class="p">([</span><span class="mi">2</span><span class="p">])</span> <span class="ow">is</span> <span class="kc">None</span>
+<span class="n">g</span><span class="p">([</span><span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">])</span> <span class="ow">is</span> <span class="kc">None</span>
 </pre></div>
 </div>
 </div>
@@ -8425,6 +8473,30 @@ a.anchor-link {
 <pre>(['a', 2, 3, False], ['more'])</pre>
 </div>
 </div>
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
+<pre>True</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
+<pre>True</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
+<pre>True</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
+<pre>True</pre>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -8447,6 +8519,7 @@ a.anchor-link {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">take_while</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Unary</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Unary</span><span class="p">:</span>
+  <span class="s2">"Accumulate until not f(seq)."</span>
   <span class="k">def</span><span class="w"> </span><span class="nf">g</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
     <span class="n">acc</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">while</span> <span class="n">seq</span> <span class="ow">and</span> <span class="p">(</span><span class="n">x</span> <span class="o">:=</span> <span class="n">f</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
@@ -8728,9 +8801,10 @@ a.anchor-link {
 <span style="color: rgb(138,138,138)">                 </span><span style="color: rgb(138,138,138)">(</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(0,175,135)">definition</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(138,138,138)">,</span>
 <span style="color: rgb(138,138,138)">                  </span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(0,175,135)">add</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(138,138,138)">,</span>
 <span style="color: rgb(138,138,138)">                  </span><span style="color: rgb(138,138,138)">(</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(0,175,135)">sequence</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(138,138,138)">,</span>
-<span style="color: rgb(138,138,138)">                   </span><span style="color: rgb(138,138,138)">[</span><span style="color: rgb(138,138,138)">(</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(0,175,135)">bound_match</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(138,138,138)">,</span><span style="color: rgb(138,138,138)"> </span><span style="color: rgb(138,138,138)">(</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(0,175,135)">regex</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(138,138,138)">,</span><span style="color: rgb(138,138,138)"> </span><span style="color: rgb(158,158,158)">re</span><span style="color: rgb(138,138,138)">.</span><span style="color: rgb(158,158,158)">compile</span><span style="color: rgb(138,138,138)">(</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(0,175,135)">^foo</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(138,138,138)">)</span><span style="color: rgb(138,138,138)">)</span><span style="color: rgb(138,138,138)">,</span><span style="color: rgb(138,138,138)"> </span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(0,175,135)">c</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(138,138,138)">)</span><span style="color: rgb(138,138,138)">,</span>
-<span style="color: rgb(138,138,138)">                    </span><span style="color: rgb(138,138,138)">(</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(0,175,135)">action</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(138,138,138)">,</span><span style="color: rgb(138,138,138)"> </span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(0,175,135)">do_this(c)</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(138,138,138)">)</span><span style="color: rgb(138,138,138)">]</span><span style="color: rgb(138,138,138)">)</span><span style="color: rgb(138,138,138)">)</span><span style="color: rgb(138,138,138)">]</span><span style="color: rgb(138,138,138)">)</span><span style="color: rgb(138,138,138)">,</span>
-<span style="color: rgb(138,138,138)">               </span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(138,138,138)">)</span>
+<span style="color: rgb(138,138,138)">                   </span><span style="color: rgb(138,138,138)">[</span><span style="color: rgb(138,138,138)">(</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(0,175,135)">reference</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(138,138,138)">,</span><span style="color: rgb(138,138,138)"> </span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(0,175,135)">expr</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(138,138,138)">)</span><span style="color: rgb(138,138,138)">,</span><span style="color: rgb(138,138,138)"> </span><span style="color: rgb(138,138,138)">(</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(0,175,135)">string</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(138,138,138)">,</span><span style="color: rgb(138,138,138)"> </span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(0,175,135)">+</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(138,138,138)">)</span><span style="color: rgb(138,138,138)">,</span><span style="color: rgb(138,138,138)"> </span><span style="color: rgb(138,138,138)">(</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(0,175,135)">reference</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(138,138,138)">,</span><span style="color: rgb(138,138,138)"> </span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(0,175,135)">expr</span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(138,138,138)">)</span><span style="color: rgb(138,138,138)">]</span><span style="color: rgb(138,138,138)">)</span><span style="color: rgb(138,138,138)">)</span><span style="color: rgb(138,138,138)">]</span><span style="color: rgb(138,138,138)">)</span><span style="color: rgb(138,138,138)">,</span>
+<span style="color: rgb(138,138,138)">               </span><span style="color: rgb(0,175,135)">'</span>
+<span style="color: rgb(138,138,138)">              </span><span style="color: rgb(158,158,158)">const</span><span style="color: rgb(138,138,138)"> </span><span style="color: rgb(138,138,138)">=</span><span style="color: rgb(138,138,138)"> </span><span style="color: rgb(138,138,138)">/</span><span style="color: rgb(138,138,138)">^</span><span style="color: rgb(138,138,138)">[</span><span style="color: rgb(138,138,138)">-</span><span style="color: rgb(138,138,138)">+</span><span style="color: rgb(138,138,138)">]</span><span style="color: rgb(215,95,0)">?</span><span style="color: rgb(138,138,138)">\</span><span style="color: rgb(138,138,138)">\</span><span style="color: rgb(158,158,158)">d</span><span style="color: rgb(138,138,138)">+</span><span style="color: rgb(138,138,138)">/</span><span style="color: rgb(138,138,138)">;</span>
+<span style="color: rgb(138,138,138)">                </span><span style="color: rgb(0,175,135)">'</span><span style="color: rgb(0,175,135)">)</span>
 </pre>
 </div>
 </div>
@@ -8752,9 +8826,8 @@ a.anchor-link {
    ('definition',
     'add',
     ('sequence',
-     [('bound_match', ('regex', re.compile(r'^foo', re.UNICODE)), 'c'),
-      ('action', 'do_this(c)')]))]),
- '')</pre>
+     [('reference', 'expr'), ('string', '+'), ('reference', 'expr')]))]),
+ '\nconst = /^[-+]?\\d+/;\n  ')</pre>
 </div>
 </div>
 </div>

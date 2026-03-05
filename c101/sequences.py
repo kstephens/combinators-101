@@ -3,10 +3,15 @@
 
 # # (Imports)
 
-# In[2]:
+# In[ ]:
 
 
-get_ipython().run_cell_magic('capture', 'import_io', "import sys; sys.path.append('..')\nfrom c101.helpers import *\nfrom c101.combinators_101 import *\n")
+# %%capture import_io
+import sys; sys.path.append('..')
+from typing import Callable
+from c101.helpers import *
+from c101.combinators_101 import *
+from c101.combinators_101 import constantly_7
 
 
 # # Sequences
