@@ -7821,7 +7821,7 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7837,39 +7837,6 @@ a.anchor-link {
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
 <span class="nb">map</span> <span class="o">=</span> <span class="n">c101</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">map_</span>
 </pre></div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
-<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[2]</span><span class="ansi-green-fg">, line 4</span>
-<span class="ansi-green-fg">      2</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">c101</span><span class="ansi-blue-intense-fg ansi-bold">.</span><span class="ansi-blue-intense-fg ansi-bold">helpers</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> *
-<span class="ansi-green-fg">      3</span> <span class="ansi-bold" style="color: rgb(0,135,0)">import</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">c101</span><span class="ansi-blue-intense-fg ansi-bold">.</span><span class="ansi-blue-intense-fg ansi-bold">helpers</span>
-<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">4</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">c101</span><span class="ansi-blue-intense-fg ansi-bold">.</span><span class="ansi-blue-intense-fg ansi-bold">combinators_101</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> *
-<span class="ansi-green-fg">      5</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-intense-fg ansi-bold">functools</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> reduce
-<span class="ansi-green-fg">      6</span> <span style="color: rgb(0,135,0)">map</span> = c101.helpers.map_
-
-<span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/local/src/combinators-101/c101/../c101/combinators_101.py:51</span>
-<span class="ansi-green-fg">      9</span> get_ipython().run_cell_magic(<span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg">capture</span><span class="ansi-yellow-fg">'</span>, <span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg">import_io</span><span class="ansi-yellow-fg">'</span>, <span class="ansi-yellow-fg">"</span><span class="ansi-yellow-fg">import sys; sys.path.append(</span><span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg">..</span><span class="ansi-yellow-fg">'</span><span class="ansi-yellow-fg">)</span><span class="ansi-bold" style="color: rgb(175,95,0)">\n</span><span class="ansi-yellow-fg">from c101.helpers import *</span><span class="ansi-bold" style="color: rgb(175,95,0)">\n</span><span class="ansi-yellow-fg">import operator as op</span><span class="ansi-bold" style="color: rgb(175,95,0)">\n</span><span class="ansi-yellow-fg">import inspect</span><span class="ansi-bold" style="color: rgb(175,95,0)">\n</span><span class="ansi-yellow-fg">from typing import Any, Optional, Union, List, Tuple, Dict, Iterable, Mapping, Callable, Type, Literal, IO, NoReturn, Self</span><span class="ansi-bold" style="color: rgb(175,95,0)">\n</span><span class="ansi-yellow-fg">"</span>)
-<span class="ansi-green-fg">     12</span> <span style="color: rgb(95,135,135)"># # Combinators-101</span>
-<span class="ansi-green-fg">     13</span> <span style="color: rgb(95,135,135)"># </span>
-<span class="ansi-green-fg">     14</span> <span style="color: rgb(95,135,135)"># This workshop is about building functions with functions.</span>
-<span class="ansi-green-fg">   (...)</span><span class="ansi-green-fg">     49</span> <span style="color: rgb(95,135,135)">#   an `str` and `int`</span>
-<span class="ansi-green-fg">     50</span> <span style="color: rgb(95,135,135)">#   and returns a `Tuple` of `int` and `int`:</span>
-<span class="ansi-green-fg">---&gt; </span><span class="ansi-green-fg">51</span> <span class="ansi-yellow-bg">Callable</span>[[<span style="color: rgb(0,135,0)">str</span>, <span style="color: rgb(0,135,0)">int</span>], Tuple[<span style="color: rgb(0,135,0)">int</span>, <span style="color: rgb(0,135,0)">int</span>]]
-<span class="ansi-green-fg">     53</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-blue-fg">h</span>(a: <span style="color: rgb(0,135,0)">str</span>, b: <span style="color: rgb(0,135,0)">int</span>) -&gt; Tuple[<span style="color: rgb(0,135,0)">int</span>, <span style="color: rgb(0,135,0)">int</span>]:
-<span class="ansi-green-fg">     54</span>   <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> (<span style="color: rgb(0,135,0)">len</span>(a), <span style="color: rgb(0,135,0)">len</span>(a) * b)
-
-<span class="ansi-red-fg">NameError</span>: name 'Callable' is not defined</pre>
 </div>
 </div>
 </div>

@@ -6,7 +6,12 @@
 # In[ ]:
 
 
-get_ipython().run_cell_magic('capture', 'import_io', "import sys; sys.path.append('..')\nfrom c101.helpers import *\nimport operator as op\nimport inspect\nfrom typing import Any, Optional, Union, List, Tuple, Dict, Iterable, Mapping, Callable, Type, Literal, IO, NoReturn, Self\n")
+# %%capture import_io
+import sys; sys.path.append('..')
+from c101.helpers import *
+import operator as op
+import inspect
+from typing import Any, Optional, Union, List, Tuple, Dict, Iterable, Mapping, Callable, Type, Literal, IO, NoReturn, Self
 
 
 # # Combinators-101
