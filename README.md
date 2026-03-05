@@ -2,6 +2,8 @@
 
 An Interactive Introduction to Function Combinators
 
+Requires Python 3.13.
+
 Run:
 
 ```bash
@@ -24,7 +26,7 @@ scripts/before-commit.sh
 Run the notebook code directly:
 
 ```bash
-script/sbefore-commit.sh
+scripts/before-commit.sh
 python c101/combinators_101.py
 ```
 
