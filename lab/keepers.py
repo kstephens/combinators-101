@@ -1,6 +1,6 @@
 def defcombinator(f):
    def named(*args, **kwargs):
-   return f
+      return f
 
 
 @combinator
