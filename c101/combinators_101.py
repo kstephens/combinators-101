@@ -3,7 +3,7 @@
 
 # # (Imports)
 
-# In[ ]:
+# In[1]:
 
 
 # %%capture import_io
@@ -25,6 +25,12 @@ from typing import Any, Optional, Union, List, Tuple, Dict, Iterable, Mapping, C
 # * functions that combine functions into new functions.
 # 
 # This workshop presents higher-order functional programming using Python.  While there are other programming which are specifically functional, Python is the most popular programming language in the world and it supports functional programming very well.
+# 
+# In this document: `f`, `g`, `h` are the names of functions.
+# 
+# Resources:
+# 
+# - Python [typing](https://docs.python.org/3.13/library/typing.html) documentation.
 
 # ----
 
@@ -34,6 +40,8 @@ from typing import Any, Optional, Union, List, Tuple, Dict, Iterable, Mapping, C
 
 # ## Basic Types
 # 
+# The `typing` module provides basic types.
+# 
 # * `int` - an integer
 # * `str` - a string
 # * `Any` - any type
@@ -42,11 +50,20 @@ from typing import Any, Optional, Union, List, Tuple, Dict, Iterable, Mapping, C
 
 # ## Function Types
 # 
+# Function types define function "signatures":
+# 
+# - the type of each parameter
+# - the type of the returned value
+# 
+# This document will use type annotations throughout.
+# 
+# Python "functions" have the type `typing.Callable`:
+# 
 # * `Callable` - anything that can be called with zero or more arguments
 # * `Callable[..., T]` - a `Callable` with zero or more arguments that returns a value of type `T`
 # * `Callable[[A1, A2], T]` - Two arguments of type `A1` and `A2`, respectively, returning type `T`
 
-# In[2]:
+# In[ ]:
 
 
 # Example:
@@ -55,10 +72,25 @@ from typing import Any, Optional, Union, List, Tuple, Dict, Iterable, Mapping, C
 #   and returns a `Tuple` of `int` and `int`:
 Callable[[str, int], Tuple[int, int]]
 
-def h(a: str, b: int) -> Tuple[int, int]:
+def f(a: str, b: int) -> Tuple[int, int]:
   return (len(a), len(a) * b)
 
-h("ab", 21)
+f("ab", 21)
+
+
+# ## Common Function Types
+
+# In[ ]:
+
+
+# Function with one argument that returns anything.
+Unary = Callable[[Any], Any]
+
+# Functions with two arguments that return anything.
+Binary = Callable[[Any, Any], Any]
+
+# Functions with zero or more arguments that return anything.
+Variadic = Callable[..., Any]
 
 
 # ----
@@ -203,11 +235,8 @@ constantly_7(13, 17)
 
 # ## Indexable Getters
 
-# In[15]:
+# In[ ]:
 
-
-# Function with one argument that returns anything.
-Unary = Callable[[Any], Any]
 
 # A value `x` that supports `x[i]`:
 Indexable = Union[List, Tuple, Dict]
@@ -414,7 +443,7 @@ c()
 # 
 # ```python
 # def c(f: Callable, ...) -> Callable:    # <-- COMBINATOR
-#   def g(b, ...):                        # <-- COMPOSITION
+#   def g(a, b, ...):                     # <-- COMPOSITION
 #     return f(do_something_with(a, b))   # <-- APPLICATION and RESULT
 #   return g                              # <-- CLOSURE
 # ```
@@ -423,8 +452,34 @@ c()
 # 
 # ```python
 # def c(f: Callable, ...) -> Callable:
-#   return lambda b, ...: f(do_something_with(a, b))
+#   return lambda a, b, ...: f(do_something_with(a, b))
 # ```
+# 
+
+# Combinators presented here may return functions that will receive `*args*` and `**kwargs`.
+# 
+# This is a common pattern:
+
+# In[78]:
+
+
+def print_args(f: Callable) -> Callable:    # <-- COMBINATOR
+  "Return a function that prints *args and **kwargs before calling f(...)."
+  def g(*args, **kwargs):                     # <-- COMPOSITION
+    print(repr((args, kwargs)))                  # <-- NEW BEHAVIOR
+    return f(*args, **kwargs)                    # <-- APPLICATION and RESULT
+  return g                                       # <-- CLOSURE
+
+
+# In[79]:
+
+
+def f(x, y):
+  return x + y
+
+print_args_then_call_f = print_args(f)
+print_args_then_call_f(2, 3)
+
 
 # ----
 
@@ -432,29 +487,33 @@ c()
 
 # ## Function Arity Helper
 
-# Some languages can have functions defintions with different parameter lists.  Python does not.
+# In some languages functions defintions can have the same name with different parameter lists.
 # 
 # ```C++
-# void print(int);
-# void print(int, int)
+# void print(int x);
+# void print(int x, int y);
+# print(1)
+# print(2)
 # ```
+# 
+# Python does not have this feature... but here's a combinator for it...
 
-# In[30]:
+# In[81]:
 
 
 def arity(*funcs):
   "Returns a function that dispatches based on the arity of the functions given and the arguments from the caller."
   funcs = tuple([(f, len(inspect.signature(f).parameters)) for f in funcs])
-  def g(*args):
+  def g(*args, **kwargs):
     for f, n in funcs:
       if len(args) == n:
-        return f(*args)
+        return f(*args, **kwargs)
     raise RuntimeError(f"nargs {len(args)!r} : {funcs!r}")
   return g
 
-f = arity(op.neg, op.sub)
-f(2)      ;  op.neg(2)
-f(11, 5)  ;  op.sub(11, 5)
+neg_1_or_sub_2 = arity(op.neg, op.sub)
+neg_1_or_sub_2(2)      ;  op.neg(2)
+neg_1_or_sub_2(11, 5)  ;  op.sub(11, 5)
 
 
 # ## Tracing Combinator
@@ -494,7 +553,7 @@ except Exception as e:
 
 # # Stateful Combinators
 
-# In[ ]:
+# In[33]:
 
 
 def with_counter(f: Callable, i: int = 0) -> Callable:
@@ -552,7 +611,7 @@ def trace(f: Callable, name: str | None = None) -> Callable:
     return g                                                 # <--- CLOSURE
 
 
-# In[79]:
+# In[36]:
 
 
 add = trace(lambda x, y: x + y, "add")
@@ -560,7 +619,7 @@ f = trace(lambda x, y: add(x, y) / y, "f")
 f(2, 3)
 
 
-# In[80]:
+# In[37]:
 
 
 try:
@@ -573,7 +632,7 @@ except Exception as e:
 
 # # Predicates
 
-# In[37]:
+# In[ ]:
 
 
 # Functions with zero or more arguments that return a boolean.
@@ -587,13 +646,15 @@ is_string("hello")
 is_string(3)
 
 
+# ----
+
 # # Function Composition
 # 
 # Functions are combinined into new functions.
 
 # ## Predicate Combinators
 
-# In[38]:
+# In[39]:
 
 
 # Functions that take a Predicate and return a new Predicate.
@@ -620,7 +681,7 @@ g(3)
 # 
 # In other words, a method is a function partially applied to its receiver.
 
-# In[39]:
+# In[40]:
 
 
 a, b = 2, 3
@@ -633,7 +694,7 @@ f(b)
 
 # ## Generic Partial Application
 
-# In[72]:
+# In[41]:
 
 
 def partial(f: Callable, *args, **kwargs) -> Callable:
@@ -643,7 +704,7 @@ def partial(f: Callable, *args, **kwargs) -> Callable:
   return g
 
 
-# In[73]:
+# In[42]:
 
 
 def add_and_multiply(a, b, c):
@@ -655,7 +716,7 @@ g = partial(add_and_multiply, 2)
 g(3, 5)
 
 
-# In[74]:
+# In[43]:
 
 
 def partial_right(f: Callable, *args, **kwargs) -> Callable:
@@ -665,7 +726,7 @@ def partial_right(f: Callable, *args, **kwargs) -> Callable:
   return g
 
 
-# In[75]:
+# In[44]:
 
 
 g = partial_right(add_and_multiply, 2)
@@ -674,7 +735,7 @@ g(3, 5)
 
 # # Composition
 
-# In[42]:
+# In[45]:
 
 
 def compose(*callables) -> Variadic:
@@ -692,7 +753,7 @@ def compose(*callables) -> Variadic:
   return h
 
 
-# In[43]:
+# In[46]:
 
 
 h = compose(str)
@@ -700,7 +761,7 @@ h("abc")
 h(5)
 
 
-# In[44]:
+# In[47]:
 
 
 h = compose(repr, str)
@@ -708,7 +769,7 @@ h("abc")
 h(5)
 
 
-# In[45]:
+# In[48]:
 
 
 len(repr(str("abc")))
@@ -716,7 +777,7 @@ h = compose(len, repr, str)
 h("abc")
 
 
-# In[46]:
+# In[49]:
 
 
 def multiply_by_3(x):
@@ -726,7 +787,7 @@ h = compose(plus_three, multiply_by_3)
 h(5)
 
 
-# In[47]:
+# In[50]:
 
 
 def juxt(*fs):
@@ -746,7 +807,7 @@ map(juxt(identity, negative, partial(repeat, 3)), [2, 3, 5, 7])
 
 # # Iterative Combinators
 
-# In[48]:
+# In[51]:
 
 
 def fixed_point(f: Unary) -> Unary:
@@ -767,7 +828,7 @@ g = fixed_point(trace(f))
 g(("abccabaaxabc", "abc"))
 
 
-# In[78]:
+# In[52]:
 
 
 def Heron(S: float) -> float:
@@ -783,7 +844,7 @@ sqrt(50.0)
 math.sqrt(50.0)
 
 
-# In[77]:
+# In[53]:
 
 
 def Collatz(n):
@@ -797,7 +858,7 @@ fixed_point(trace(Collatz))(53)
 
 # ## Mapping functions over sequences
 
-# In[51]:
+# In[54]:
 
 
 # Note: Python has a built-in `map` -- this is for illustration:
@@ -817,7 +878,7 @@ map(not_(is_string), items)
 map(plus_three, [3, 5, 7, 11])
 
 
-# In[52]:
+# In[55]:
 
 
 # Restore the built-in:
@@ -826,7 +887,7 @@ map(plus_three, [3, 5, 7, 11])
 
 # ## Filtering Sequences with Predicates
 
-# In[53]:
+# In[56]:
 
 
 def filter(f: Unary, xs: Iterable) -> Iterable:
@@ -840,11 +901,8 @@ filter(not_(is_string), items)
 
 # ## Reducing Sequences with Binary Functions
 
-# In[54]:
+# In[ ]:
 
-
-# Functions with two arguments that return anything.
-Binary = Callable[[Any, Any], Any]
 
 def reduce(f: Binary, xs: Iterable, init: Any) -> Any:
   'Returns the result of `init = f(x, init)` for each element `x` in `xs`.'
@@ -860,7 +918,7 @@ a_list_of_strings = ["A", "List", 'Of', 'Strings']
 reduce(add, a_list_of_strings, "Here Is ")
 
 
-# In[55]:
+# In[58]:
 
 
 items = [1, "string", 2, 3, "-and-more", 5]
@@ -877,7 +935,7 @@ reduce(add, filter(is_number, items), 0)
 reduce(add, filter(not_(is_string), items), 0)
 
 
-# In[56]:
+# In[59]:
 
 
 def conjoin(a, b) -> Callable[[Any, Any], Tuple[Any, Any]]:
@@ -892,7 +950,7 @@ dict(map(with_counter(conjoin, 21), ["a", "b", "c", "d"]))
 
 # ## Map as a Reduction
 
-# In[57]:
+# In[60]:
 
 
 def map_r(f: Unary, xs: Iterable) -> Iterable:
@@ -906,7 +964,7 @@ map_r(plus_three, [3, 5, 7, 11])
 
 # ## Filter as a Reduction
 
-# In[58]:
+# In[61]:
 
 
 def filter_r(f: Unary, xs: Iterable) -> Iterable:
@@ -921,7 +979,7 @@ filter_r(is_string, items)
 
 # ## Mapcat (aka Flat-Map)
 
-# In[59]:
+# In[62]:
 
 
 ConcatableUnary = Callable[[Any], Iterable]
@@ -940,7 +998,7 @@ duplicate_each_3_times(range(4, 7))
 
 # ## Manipulating Arguments
 
-# In[60]:
+# In[63]:
 
 
 def reverse_args(f: Callable) -> Callable:
@@ -960,7 +1018,7 @@ reduce(reverse_args(conjoin), [3, 5, 7], 2)
 
 # # Interlude
 
-# In[61]:
+# In[64]:
 
 
 def modulo(modulus: int) -> Callable[[int], int]:
@@ -970,7 +1028,7 @@ mod_3 = modulo(3)
 map(mod_3, range(10))
 
 
-# In[62]:
+# In[65]:
 
 
 h = compose(indexed(a_list_of_strings), mod_3)
@@ -980,7 +1038,7 @@ map(h, range(10))
 
 # ### Arity Reduction
 
-# In[63]:
+# In[66]:
 
 
 def unary(f: Variadic) -> Unary:
@@ -997,7 +1055,7 @@ h(a=1, b=2)
 
 # ## Error Handlers
 
-# In[64]:
+# In[67]:
 
 
 def except_(f: Variadic, ex_class, error: Unary) -> Callable:
@@ -1017,7 +1075,7 @@ h('Nope')
 
 # ## Predicators
 
-# In[65]:
+# In[68]:
 
 
 def re_pred(pat: str, re_func: Callable = re.search) -> Predicate:
@@ -1029,7 +1087,7 @@ re_pred("ab")("abc")
 re_pred("ab")("nope")
 
 
-# In[66]:
+# In[69]:
 
 
 def default(f: Variadic, g: Variadic) -> Variadic:
@@ -1044,7 +1102,7 @@ def default(f: Variadic, g: Variadic) -> Variadic:
 
 # ## Logical Predicate Composers
 
-# In[67]:
+# In[70]:
 
 
 def and_(f: Variadic, g: Variadic) -> Variadic:
@@ -1073,7 +1131,7 @@ items = ["hello", "not-a-word", 2, 3.5, None]
 map(juxt(identity, func), items)
 
 
-# In[68]:
+# In[71]:
 
 
 Procedure = Callable[[], Any]
@@ -1090,7 +1148,7 @@ def if_(f: Variadic, g: Unary, h: Unary) -> Variadic:
 
 # ## Sequencing
 
-# In[69]:
+# In[72]:
 
 
 def progn(*fs: Iterable[Callable]) -> Callable:
@@ -1103,7 +1161,7 @@ def progn(*fs: Iterable[Callable]) -> Callable:
   return g
 
 
-# In[70]:
+# In[73]:
 
 
 def prog1(f0: Callable, *fs: Iterable[Callable]) -> Callable:
@@ -1116,7 +1174,7 @@ def prog1(f0: Callable, *fs: Iterable[Callable]) -> Callable:
   return g
 
 
-# In[71]:
+# In[74]:
 
 
 def reverse_apply(x: Any) -> Callable:

@@ -16,7 +16,10 @@ set-vars() {
 }
 ipynb-to-py() {
   chmod u+w "$py" || :
-  jupyter nbconvert --to script "$nb"
+  jupyter nbconvert \
+    --clear-output \
+    --to script \
+    "$nb"
   python -m py_compile "$nb" || exit $?
   chmod -w "$py"
 }
@@ -26,6 +29,7 @@ ipynb-to-html() {
     --to html \
     --template lab \
     --HTMLExporter.theme=dark \
+    --no-prompt \
     "$nb"
   mkdir -p "${html_dst%/*}"
   chmod u+w "$html_dst" || :
@@ -65,3 +69,9 @@ do
   ipynb-to-html
 done
 
+get-ipynb-files |
+while read nb
+do
+  set-vars
+  clean-up-ipynb
+done
