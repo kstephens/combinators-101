@@ -14,7 +14,7 @@ executing==2.2.1
 fastjsonschema==2.21.2
 icecream==2.1.10
 ipykernel==7.2.0
-ipython==9.10.0
+# ipython==9.10.0
 ipython_pygments_lexers==1.1.1
 jedi==0.19.2
 Jinja2==3.1.6
