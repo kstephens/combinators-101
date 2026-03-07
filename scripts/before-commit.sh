@@ -2,12 +2,12 @@
 . venv/bin/activate
 
 get-ipynb-files() {
-find c101 -name '*.ipynb' |
-sort |
-(
-  echo c101/combinators_101.ipynb
-  cat
-)
+  find c101 -name '*.ipynb' |
+  sort |
+  (
+    echo c101/combinators_101.ipynb
+    cat
+  )
 }
 set-vars() {
   py="${nb%.*}.py"
@@ -26,7 +26,7 @@ ipynb-to-py() {
   chmod -w "$py"
 }
 ipynb-to-html() {
-    jupyter nbconvert \
+  jupyter nbconvert \
     --execute \
     --to html \
     --template lab \
