@@ -6,14 +6,15 @@
 # In[35]:
 
 
-import sys; sys.path.append('..')
+import sys
+
+sys.path.append("..")
 from c101.helpers import *
 
-
 # # Web Application Architecture
-# 
+#
 # Application middleware combinators inspired Python WSGI and Ruby Rack.
-# 
+#
 # - An "App" is anything callable with a single dict argument.
 # - It receives a "Request"
 #   - typically a Dict of input: headers, body and customary values passed along an "application stack".
@@ -23,7 +24,7 @@ from c101.helpers import *
 #   - body -- a sequence of response body chunks
 # - applications and middleware follow the same protocol.
 # - Combinators create new Apps by wrapping others.
-# 
+#
 
 # In[36]:
 
@@ -43,7 +44,9 @@ App = Callable[[Req], Res]
 
 
 def hello_world_app(req: Req) -> Res:
-  return 200, {}, ["Hello, World!\n"]
+    return 200, {}, ["Hello, World!\n"]
+
+
 app = hello_world_app
 app({})
 
@@ -54,18 +57,19 @@ app({})
 
 
 def something_useful_app(req: Req) -> Res:
-  x, y = req['req.data']
-  return 200, {}, (x * y,)
+    x, y = req["req.data"]
+    return 200, {}, (x * y,)
+
 
 app = something_useful_app
-app({'req.data': [2, 5]})
+app({"req.data": [2, 5]})
 
 
 # In[39]:
 
 
 app = something_useful_app
-app({'req.data': ["ab", 3]})
+app({"req.data": ["ab", 3]})
 
 
 # ## Application Combinators
@@ -76,10 +80,11 @@ app({'req.data': ["ab", 3]})
 
 
 def compose_input_handler(app: App) -> App:
-  def input_handler(req: Req) -> Res:
-    # do something with req...
-    return app(req)
-  return input_handler
+    def input_handler(req: Req) -> Res:
+        # do something with req...
+        return app(req)
+
+    return input_handler
 
 
 # Output combinators follow this pattern:
@@ -88,11 +93,12 @@ def compose_input_handler(app: App) -> App:
 
 
 def compose_output_handler(app: App) -> App:
-  def output_handler(req: Req) -> Res:
-    status, headers, body = response = app(req)  # <<<
-    # do something with response...
-    return status, headers, body
-  return output_handler
+    def output_handler(req: Req) -> Res:
+        status, headers, body = response = app(req)  # <<<
+        # do something with response...
+        return status, headers, body
+
+    return output_handler
 
 
 # ## App Stack Tracing
@@ -102,7 +108,7 @@ def compose_output_handler(app: App) -> App:
 
 app = something_useful_app
 app = trace(app)
-app({'req.data': [5, 7]})
+app({"req.data": [5, 7]})
 
 
 # In[43]:
@@ -137,6 +143,7 @@ def capture_exception(app: App, cls=Exception, status=500) -> App:
             return app(req)
         except cls as exc:
             return status, {"Content-Type": "text/plain"}, [repr(exc) + "\n"]
+
     return capturing_exception
 
 
@@ -145,7 +152,7 @@ def capture_exception(app: App, cls=Exception, status=500) -> App:
 
 app = something_useful_app
 app = capture_exception(app)
-app({'req.data': [{"a": 1}, 7]})
+app({"req.data": [{"a": 1}, 7]})
 
 
 # ## Reading Inputs, Writing Outputs
@@ -156,12 +163,15 @@ app({'req.data': [{"a": 1}, 7]})
 Content = str
 Data = Any
 
+
 def read_input(app: App) -> App:
     "Reads req.stream"
+
     def read_content(req: Req) -> Res:
         req["req.content"] = req["req.stream"].read()
         req["Content-Length"] = len(req["req.content"])
         return app(req)
+
     return read_content
 
 
@@ -173,23 +183,27 @@ def read_input(app: App) -> App:
 Encoder = Callable[[Data], Content]
 Decoder = Callable[[Content], Data]
 
+
 def decode_content(app: App, decoder: Decoder, content_types=None, strict=False) -> App:
     """
     Decodes body with decoder(input.content) for content_types.
     If strict and Content-Type is not expected, return 400.
     """
+
     def decoding_content(req: Req) -> Res:
         content_type = req.get("Content-Type")
         if strict and content_types and content_type not in content_types:
             msg = f"Unexpected Content-Type {content_type!r} : expected: {content_types!r} : "
-            return 400, {"Content-Type": 'text/plain'}, (msg,)
+            return 400, {"Content-Type": "text/plain"}, (msg,)
         req["req.data"] = decoder(req["req.content"])
         return app(req)
+
     return decoding_content
 
 
 def encode_content(app: App, encoder: Encoder, content_type="text/plain") -> App:
     "Encodes body with encoder.  Sets Content-Type."
+
     def encoding_content(req: Req) -> Res:
         status, headers, body = app(req)
         content = "".join(map(encoder, body))
@@ -198,6 +212,7 @@ def encode_content(app: App, encoder: Encoder, content_type="text/plain") -> App
             "Content-Length": len(content),
         }
         return status, headers, [content]
+
     return encoding_content
 
 
@@ -208,18 +223,28 @@ def encode_content(app: App, encoder: Encoder, content_type="text/plain") -> App
 
 import json
 
+
 def decode_json(app: App, *args, **kwargs) -> App:
     "Decodes JSON content."
+
     def decoding_json(data: Data) -> Any:
         return json.loads(data, *args, **kwargs)
-    return decode_content(app, decoding_json, content_types={'application/json', 'text/plain'}, strict=True)
+
+    return decode_content(
+        app,
+        decoding_json,
+        content_types={"application/json", "text/plain"},
+        strict=True,
+    )
 
 
 def encode_json(app: App, *args, **kwargs) -> App:
     "Encodes data as JSON."
+
     def encoding_json(data: Data) -> Content:
         return json.dumps(data, *args, **kwargs) + "\n"
-    return encode_content(app, encoding_json, content_type='application/json')
+
+    return encode_content(app, encoding_json, content_type="application/json")
 
 
 # ## HTTP Protocol
@@ -235,20 +260,24 @@ def http_request(app: App) -> App:
         while line := req_io.readline().rstrip():
             k, v = line.strip().split(":", 2)
             req[k] = v.strip()
-        req.update({
-            "REQUEST_METHOD": request_method,
-            "PATH_INFO": path_info,
-            "SERVER_PROTOCOL": server_protocol,
-            "req.stream": req_io,
-            # "output.stream": res_io,
-        })
+        req.update(
+            {
+                "REQUEST_METHOD": request_method,
+                "PATH_INFO": path_info,
+                "SERVER_PROTOCOL": server_protocol,
+                "req.stream": req_io,
+                # "output.stream": res_io,
+            }
+        )
         return app(req)
+
     return http_request
+
 
 def http_response(app: App) -> App:
     def http_response(req):
         status, headers, body = app(req)
-        res_io = req['res.stream']
+        res_io = req["res.stream"]
         res_io.write(f"HTTP/1.1 {http_status_line(status)}\n")
         for k, v in headers.items():
             res_io.write(f"{k}: {v}\n")
@@ -257,7 +286,9 @@ def http_response(app: App) -> App:
             if callable(chunk):
                 chunk(res_io)
             res_io.write(chunk)
+
     return http_response
+
 
 req_str = """\
 POST / HTTP/1.1
@@ -283,9 +314,20 @@ def http_request_str(app):
     def http(req_str: str):
         req = {"req.stream": StringIO(req_str), "res.stream": res_io}
         app(req)
+
     return http
 
-app = app_comp(something_useful_app, decode_json, encode_json, read_input, capture_exception, http_request, http_response, http_request_str)
+
+app = app_comp(
+    something_useful_app,
+    decode_json,
+    encode_json,
+    read_input,
+    capture_exception,
+    http_request,
+    http_response,
+    http_request_str,
+)
 res_io = sys.stdout
 
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+. venv/bin/activate
 
 get-ipynb-files() {
 find c101 -name '*.ipynb' |
@@ -21,6 +22,7 @@ ipynb-to-py() {
     --to script \
     "$nb"
   python -m py_compile "$nb" || exit $?
+  black "$py"
   chmod -w "$py"
 }
 ipynb-to-html() {
