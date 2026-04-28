@@ -1,31 +1,32 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# # (Imports)
-
-# In[ ]:
-
+"""
+# (Imports)
+"""
 
 # %%capture import_io
-import sys; sys.path.append('..')
 from typing import Callable
 from c101.helpers import *
 from c101.combinators_101 import *
 from c101.combinators_101 import constantly_7
+from c101.combinators import not_, with_counter, partial
+from c101.parser_combinators import is_string
 
+"""
+# Sequences
 
-# # Sequences
-# 
-# We will show common sequence operations
+We will show common sequence operations
+"""
 
-# ----
+"""
+----
+"""
 
-# # Manipulating Sequences
+"""
+# Manipulating Sequences
+"""
 
-# ## Mapping functions over sequences
-
-# In[3]:
-
+"""
+## Mapping functions over sequences
+"""
 
 # Note: Python has a built-in `map` -- this is for illustration:
 def map(f: Unary, xs: Iterable) -> Iterable:
@@ -43,18 +44,12 @@ map(is_string, items)
 map(not_(is_string), items)
 map(plus_three, [3, 5, 7, 11])
 
-
-# In[4]:
-
-
 # Restore the built-in:
 # map = map_
 
-
-# ## Filtering Sequences with Predicates
-
-# In[5]:
-
+"""
+## Filtering Sequences with Predicates
+"""
 
 def filter(f: Unary, xs: Iterable) -> Iterable:
   'Returns a sequence of the elements of `xs` for which `f` returns true.'
@@ -64,11 +59,9 @@ items = [1, "string", False, True, None]
 filter(is_string, items)
 filter(not_(is_string), items)
 
-
-# ## Reducing Sequences with Binary Functions
-
-# In[6]:
-
+"""
+## Reducing Sequences with Binary Functions
+"""
 
 # Functions with two arguments that return anything.
 Binary = Callable[[Any, Any], Any]
@@ -86,10 +79,6 @@ reduce(add, [3, 5, 7], 2)
 a_list_of_strings = ["A", "List", 'Of', 'Strings']
 reduce(add, a_list_of_strings, "Here Is ")
 
-
-# In[7]:
-
-
 items = [1, "string", 2, 3, "-and-more", 5]
 
 # Concat all strings:
@@ -103,10 +92,6 @@ reduce(add, filter(is_number, items), 0)
 # Sum all non-strings:
 reduce(add, filter(not_(is_string), items), 0)
 
-
-# In[8]:
-
-
 def conjoin(a, b) -> Callable[[Any, Any], Tuple[Any, Any]]:
   'Creates a Tuple from two arguments.'
   return (a, b)
@@ -116,11 +101,9 @@ reduce(conjoin, items, 2)
 
 dict(map(with_counter(conjoin, 21), ["a", "b", "c", "d"]))
 
-
-# ## Map as a Reduction
-
-# In[9]:
-
+"""
+## Map as a Reduction
+"""
 
 def map_r(f: Unary, xs: Iterable) -> Iterable:
   def acc(seq, x):
@@ -130,11 +113,9 @@ def map_r(f: Unary, xs: Iterable) -> Iterable:
 map(plus_three, [3, 5, 7, 11])
 map_r(plus_three, [3, 5, 7, 11])
 
-
-# ## Filter as a Reduction
-
-# In[10]:
-
+"""
+## Filter as a Reduction
+"""
 
 def filter_r(f: Unary, xs: Iterable) -> Iterable:
   def acc(seq, x):
@@ -145,11 +126,9 @@ items
 filter(is_string, items)
 filter_r(is_string, items)
 
-
-# ## Mapcat (aka Flat-Map)
-
-# In[11]:
-
+"""
+## Mapcat (aka Flat-Map)
+"""
 
 ConcatableUnary = Callable[[Any], Iterable]
 
@@ -164,7 +143,8 @@ duplicate_each_3_times = partial(mapcat, partial(duplicate, 3))
 duplicate_each_3_times([".", "*"])
 duplicate_each_3_times(range(4, 7))
 
-
-# ----
-# # The End
-# ----
+"""
+----
+# The End
+----
+"""

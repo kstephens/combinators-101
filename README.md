@@ -7,7 +7,7 @@ Requires Python 3.13.
 Run:
 
 ```bash
-scripts/setup.sh
+bin/c101 setup
 . venv/bin/activate
 ```
 
@@ -20,13 +20,13 @@ open c101/combinators_101.ipynb
 Before git commit:
 
 ```bash
-scripts/before-commit.sh
+bin/c101 precommit
 ```
 
 Run the notebook code directly:
 
 ```bash
-scripts/before-commit.sh
+bin/c101 convert-to-py
 python c101/combinators_101.py
 ```
 

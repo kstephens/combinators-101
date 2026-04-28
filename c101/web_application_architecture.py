@@ -1,32 +1,26 @@
-#!/usr/bin/env python
-# coding: utf-8
+"""
+# (Imports)
+"""
 
-# # (Imports)
-
-# In[35]:
-
-
-import sys; sys.path.append('..')
+# %%capture import_io
 from c101.helpers import *
 
+"""
+# Web Application Architecture
 
-# # Web Application Architecture
-# 
-# Application middleware combinators inspired Python WSGI and Ruby Rack.
-# 
-# - An "App" is anything callable with a single dict argument.
-# - It receives a "Request"
-#   - typically a Dict of input: headers, body and customary values passed along an "application stack".
-# - It returns an HTTP "Response": Tuple of:
-#   - numeric HTTP status code
-#   - dict of HTTP headers
-#   - body -- a sequence of response body chunks
-# - applications and middleware follow the same protocol.
-# - Combinators create new Apps by wrapping others.
-# 
+Application middleware combinators inspired Python WSGI and Ruby Rack.
 
-# In[36]:
+- An "App" is anything callable with a single dict argument.
+- It receives a "Request"
+  - typically a Dict of input: headers, body and customary values passed along an "application stack".
+- It returns an HTTP "Response": Tuple of:
+  - numeric HTTP status code
+  - dict of HTTP headers
+  - body -- a sequence of response body chunks
+- applications and middleware follow the same protocol.
+- Combinators create new Apps by wrapping others.
 
+"""
 
 # Types for a Web Application Stack:
 Status = int
@@ -36,22 +30,18 @@ Req = Dict[str, Any]
 Res = Tuple[Status, Headers, Body]
 App = Callable[[Req], Res]
 
-
-# ## Simple Applications
-
-# In[37]:
-
+"""
+## Simple Applications
+"""
 
 def hello_world_app(req: Req) -> Res:
   return 200, {}, ["Hello, World!\n"]
 app = hello_world_app
 app({})
 
-
-# ### Do Something Useful
-
-# In[38]:
-
+"""
+### Do Something Useful
+"""
 
 def something_useful_app(req: Req) -> Res:
   x, y = req['req.data']
@@ -61,19 +51,16 @@ app = something_useful_app
 app({'req.data': [2, 5]})
 
 
-# In[39]:
-
-
 app = something_useful_app
 app({'req.data': ["ab", 3]})
 
+"""
+## Application Combinators
+"""
 
-# ## Application Combinators
-
-# Input combinators follow this pattern:
-
-# In[40]:
-
+"""
+Input combinators follow this pattern:
+"""
 
 def compose_input_handler(app: App) -> App:
   def input_handler(req: Req) -> Res:
@@ -81,11 +68,9 @@ def compose_input_handler(app: App) -> App:
     return app(req)
   return input_handler
 
-
-# Output combinators follow this pattern:
-
-# In[41]:
-
+"""
+Output combinators follow this pattern:
+"""
 
 def compose_output_handler(app: App) -> App:
   def output_handler(req: Req) -> Res:
@@ -94,29 +79,19 @@ def compose_output_handler(app: App) -> App:
     return status, headers, body
   return output_handler
 
-
-# ## App Stack Tracing
-
-# In[42]:
-
+"""
+## App Stack Tracing
+"""
 
 app = something_useful_app
 app = trace(app)
 app({'req.data': [5, 7]})
-
-
-# In[43]:
-
 
 # Composition Naming
 def compname(g, name, *args):
     args = [a.__qualname__ if callable(a) else repr(a) for a in args]
     g.__qualname__ = f"{g}({','.join(args)})"
     return g
-
-
-# In[44]:
-
 
 def app_comp(app: App, *stack) -> App:
     "Compose application stack."
@@ -125,11 +100,9 @@ def app_comp(app: App, *stack) -> App:
         app = trace(compname(middleware(app), middleware.__qualname__, app))
     return app
 
-
-# ## Exception Handling
-
-# In[ ]:
-
+"""
+## Exception Handling
+"""
 
 def capture_exception(app: App, cls=Exception, status=500) -> App:
     def capturing_exception(req: Req) -> Res:
@@ -139,19 +112,13 @@ def capture_exception(app: App, cls=Exception, status=500) -> App:
             return status, {"Content-Type": "text/plain"}, [repr(exc) + "\n"]
     return capturing_exception
 
-
-# In[46]:
-
-
 app = something_useful_app
 app = capture_exception(app)
 app({'req.data': [{"a": 1}, 7]})
 
-
-# ## Reading Inputs, Writing Outputs
-
-# In[47]:
-
+"""
+## Reading Inputs, Writing Outputs
+"""
 
 Content = str
 Data = Any
@@ -164,11 +131,9 @@ def read_input(app: App) -> App:
         return app(req)
     return read_content
 
-
-# ## Decoding Inputs, Encoding Outputs
-
-# In[48]:
-
+"""
+## Decoding Inputs, Encoding Outputs
+"""
 
 Encoder = Callable[[Data], Content]
 Decoder = Callable[[Content], Data]
@@ -201,10 +166,9 @@ def encode_content(app: App, encoder: Encoder, content_type="text/plain") -> App
     return encoding_content
 
 
-# ## Decode JSON, Encode JSON
-
-# In[49]:
-
+"""
+## Decode JSON, Encode JSON
+"""
 
 import json
 
@@ -221,11 +185,9 @@ def encode_json(app: App, *args, **kwargs) -> App:
         return json.dumps(data, *args, **kwargs) + "\n"
     return encode_content(app, encoding_json, content_type='application/json')
 
-
-# ## HTTP Protocol
-
-# In[58]:
-
+"""
+## HTTP Protocol
+"""
 
 def http_request(app: App) -> App:
     def http_request(req):
@@ -274,10 +236,9 @@ req = {"req.stream": req_io, "res.stream": res_io}
 app(req)
 
 
-# ## Simple App Handles JSON!
-
-# In[ ]:
-
+"""
+## Simple App Handles JSON!
+"""
 
 def http_request_str(app):
     def http(req_str: str):
@@ -299,10 +260,6 @@ Content-Type: application/json
 """
 app(req_str)
 
-
-# In[60]:
-
-
 req_str = """\
 POST / HTTP/1.1
 Host: hello.world.com
@@ -312,10 +269,6 @@ Content-Type: application/json
 Invalid Json
 """
 app(req_str)
-
-
-# In[61]:
-
 
 req_str = """\
 POST / HTTP/1.1
@@ -327,7 +280,8 @@ Content-Type: application/json
 """
 app(req_str)
 
-
-# ----
-# # The End
-# ----
+"""
+----
+# The End
+----
+"""

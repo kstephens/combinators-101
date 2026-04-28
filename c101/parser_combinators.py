@@ -1,20 +1,23 @@
-#!/usr/bin/env python
-# coding: utf-8
+"""
+# (Imports)
+"""
 
-# # (Imports)
+# %%capture import_io
+from c101.helpers import *
+import c101.helpers
+map = c101.helpers.map
+from c101.combinators_101 import *
+from functools import reduce
+import logging
+import re
 
-# In[ ]:
+"""
+# Parser Combinators
+"""
 
-
-get_ipython().run_cell_magic('capture', 'import_io', "import sys; sys.path.append('..')\nfrom c101.helpers import *\nimport c101.helpers\nmap = c101.helpers.map\nfrom c101.combinators_101 import *\nfrom functools import reduce\nimport logging\nimport re\n")
-
-
-# # Parser Combinators
-
-# ## Types and Protocols
-
-# In[2]:
-
+"""
+## Types and Protocols
+"""
 
 # Parser input: a sequence of lexemes:
 Input = Sequence[Any]
@@ -25,27 +28,15 @@ Parsed = Tuple[Any, Input]
 # A parser matches the input sequence and produces a result or nothing:
 Parser = Callable[[Input], Parsed | None]
 
-
-# In[3]:
-
-
 def at(i: Any) -> Unary:
   'Returns a function `f(x)` that returns `x[i]`.'
   return lambda x: x[i]
-
-
-# In[38]:
-
 
 def show_match(p: Parser) -> Variadic:
   def g(input: Input):
     print(f"{p(input) or False!r} <= {p.__name__}({input!r})")
     return None
   return g
-
-
-# In[ ]:
-
 
 first = at(0)
 def rest(x: Input) -> Input:
@@ -63,9 +54,6 @@ def equals(x) -> Parser:
 h = show_match(equals('a'))
 h(['a'])
 h(['b', 2])
-
-
-# In[6]:
 
 
 def which(p: Predicate) -> Parser:
@@ -99,10 +87,9 @@ g([2])
 g([False])
 
 
-# # Sequence Parsers
-
-# In[31]:
-
+"""
+# Sequence Parsers
+"""
 
 ParsedSequence = Tuple[Sequence, Input]
 SequenceParser = Callable[[Input], ParsedSequence | None]
@@ -120,9 +107,6 @@ g([]) is None
 g(['a'])
 g([2]) is None
 g(['a', 'b'])
-
-
-# In[8]:
 
 
 def zero_or_more(p: Parser) -> SequenceParser:
@@ -143,10 +127,6 @@ g(['a', 'b'])
 g(['a', 'b', 2])
 g(['a', 'b', 3, 5])
 
-
-# In[9]:
-
-
 def one_or_more(p: Parser) -> SequenceParser:
   'Returns a parser for one or more lexemes as a sequence.'
   p = zero_or_more(p)
@@ -155,10 +135,6 @@ def one_or_more(p: Parser) -> SequenceParser:
       return result
   return g
 
-
-# In[10]:
-
-
 g = one_or_more(which(is_string))
 g([])
 g(['a'])
@@ -166,10 +142,6 @@ g([2])
 g(['a', 'b'])
 g(['a', 'b', 2])
 g(['a', 'b', 3, 5])
-
-
-# In[26]:
-
 
 def sequence_of(*parsers) -> SequenceParser:
   'Returns a parser for parsers of a sequence.'
@@ -193,19 +165,12 @@ g(['a']) is None
 g([2]) is None
 
 
-# In[28]:
-
-
 g = sequence_of(one_or_more(which(is_number)))
 g([2, 3])
 g([2, 3, False])
 g([]) is None
 g([2])
 g(['a']) is None
-
-
-# In[25]:
-
 
 g = sequence_of(one(which(is_string)), one_or_more(which(is_number)))
 g(['a', 2])
@@ -218,11 +183,9 @@ g(['a']) is None
 g([2]) is None
 g(['a', 'b']) is None
 
-
-# # Parser Grammar
-
-# In[ ]:
-
+"""
+# Parser Grammar
+"""
 
 def take_while(f: Unary) -> Unary:
   "Accumulate until not f(seq)."
@@ -249,11 +212,9 @@ f = action(which(is_string), a)
 f(["abc"])
 env
 
-
-# # Lexical Scanning
-
-# In[15]:
-
+"""
+# Lexical Scanning
+"""
 
 def eat(rx: str):
   p = re.compile(rx)
@@ -268,10 +229,6 @@ def lexeme(pat: str, post = at(0)):
     if input and (m := re.match(rx, input)):
       return post(m), input[len(m[0]):]
   return g
-
-
-# In[16]:
-
 
 def grammar_parser():
   env = {}
@@ -346,9 +303,6 @@ def grammar_parser():
   return g
 
 
-# In[17]:
-
-
 grammar_tests = [
   # [r'"asdf"'], # , 'pattern'],
   # [r'  a = "asdf";'],
@@ -374,11 +328,9 @@ for grammar_test in grammar_tests:
   result = gram(*grammar_test)
   ic(result)
 
-
-# # Grammar Compiler
-
-# In[18]:
-
+"""
+# Grammar Compiler
+"""
 
 def compile_grammar(gram, parser_name):
   gensym_i = 0
@@ -561,6 +513,8 @@ for i, grammar_test in enumerate(grammar_tests):
   print("### ============================================")
 
 
-# ----
-# # The End
-# ----
+"""
+----
+# The End
+----
+"""

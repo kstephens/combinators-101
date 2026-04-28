@@ -1,18 +1,17 @@
-#!/usr/bin/env python
-# coding: utf-8
+"""
+# (Imports)
+"""
 
-# # (Imports)
+# %%capture import_io
+from c101.helpers import *
+import c101.helpers
+from c101.combinators_101 import *
+from functools import reduce
+map = c101.helpers.map_
 
-# In[ ]:
-
-
-get_ipython().run_cell_magic('capture', 'import_io', "import sys; sys.path.append('..')\nfrom c101.helpers import *\nimport c101.helpers\nfrom c101.combinators_101 import *\nfrom functools import reduce\nmap = c101.helpers.map_\n")
-
-
-# # Interpreters
-
-# In[9]:
-
+"""
+# Interpreters
+"""
 
 import operator
 
@@ -30,19 +29,12 @@ def stacky(program, trace=identity):
 
 stacky("2 3 mul", trace)
 
-
-# In[10]:
-
-
 stacky("2 3 5 add mul", trace)
-
-
-# In[11]:
-
 
 stacky("33 2 3 add 5 mul gt")
 
-
-# ----
-# # The End
-# ----
+"""
+----
+# The End
+----
+"""

@@ -1,17 +1,18 @@
-#!/usr/bin/env python
-# coding: utf-8
+"""
+# (Imports)
+"""
 
-# # (Imports)
+# %%capture import_io
+import sys; sys.path.append('..')
+from c101.helpers import *
+import c101.helpers
+from c101.combinators_101 import *
+from functools import reduce
+map = c101.helpers.map_
 
-# In[ ]:
-
-
-get_ipython().run_cell_magic('capture', 'import_io', "import sys; sys.path.append('..')\nfrom c101.helpers import *\nimport c101.helpers\nfrom c101.combinators_101 import *\nfrom functools import reduce\nmap = c101.helpers.map_\n")
-
-
-# ## Operator Predicates
-
-# In[3]:
+"""
+## Operator Predicates
+"""
 
 
 def binary_op(op: str) -> Optional[Callable[[Any, Any], Any]]:
@@ -38,10 +39,6 @@ for n, f in BINARY_OPS.items():
 binary_op('==') (2, 2)
 binary_op('!=') (2, 2)
 
-
-# In[4]:
-
-
 # Create a table where `x OP y` is true:
 [
   f'{x} {op} {y}'
@@ -50,10 +47,6 @@ binary_op('!=') (2, 2)
   for y in (2, 3, 5)
   if binary_op(op)(x, y)
 ]
-
-
-# In[5]:
-
 
 def op_pred(op: str, b: Any) -> Predicate | None:
   'Returns a predicate function given an operator name and a constant.'
@@ -67,24 +60,17 @@ def op_pred(op: str, b: Any) -> Predicate | None:
     return not_(re_pred(b))
   return None
 
-
-# In[6]:
-
-
 h = op_pred(">", 3)
 h(2)
 h(5)
-
-
-# In[7]:
-
 
 g = op_pred("~=", 'ab+c')
 g('')
 g('ab')
 g('abbbcc')
 
-
-# ----
-# # The End
-# ----
+"""
+----
+# The End
+----
+"""

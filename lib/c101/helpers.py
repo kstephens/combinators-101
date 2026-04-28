@@ -16,6 +16,13 @@ import inspect
 from icecream import ic
 from http import HTTPStatus
 # from abc import abstractclass
+import sys
+sys.path.append('..')
+
+
+globals()["SAVE"] = globals().get("SAVE",{"map": map})
+# ic(sys.path)
+# ic(SAVE)
 
 
 ic.configureOutput(prefix="  #>> ")
@@ -95,6 +102,7 @@ def args_str(args, kwargs):
         return str_limit(repr(x), 10)
     s = f"(" + ', '.join([r(x) for x in args] + [f"{r(k)}={r(v)}" for k, v in kwargs.items()]) + ")"
     return str_limit(s, max_len)
+
 
 def str_limit(s, max_len):
     # ic((s, len(s), max_len))

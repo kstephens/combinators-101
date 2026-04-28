@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+
+base_dir="$(realpath "$(dirname "$0")/..")"
+gen_dir="${base_dir}/gen"
+export PYTHONPATH="${base_dir}:${gen_dir}"
+
+get-ipynb-files() {
+  cat <<EOF
+c101/combinators_101.ipynb
+c101/combinators.ipynb
+c101/decorators.ipynb
+c101/interpreters.ipynb
+c101/operator_predicates.ipynb
+c101/parser_combinators.ipynb
+c101/sequences.ipynb
+c101/web_application_architecture.ipynb
+EOF
+}
+
+each-ipynb() {
+  get-ipynb-files |
+  while read nb
+  do
+    set +x
+    set-vars
+    "$@"
+    set -x
+  done
+}
+
+set-vars() {
+  : "${nb:?}"
+  py="${nb%.*}.py"
+  html="${nb%.*}.html"
+  html_dst="html/$html"
+  nb_bak="$nb.bak"
+}
+
+ipynb-clear-output() {
+  jupyter nbconvert \
+    --clear-output \
+    --to script \
+    "$nb"
+}
+
+ipynb-to-py() {
+  mkdir -p "$(dirname "$py")"
+  ipynb-py-convert "$nb" "$py"
+  sed -i.bak -E -e '/^# %%/d' -e 's/^%/# %/' "$py"
+  echo "" >> "$py"
+  wc -l "$py"
+}
+
+ipynb-to-html() {
+    set -x
+    declare -p PYTHONPATH
+    jupyter nbconvert \
+    --execute \
+    --to html \
+    --template lab \
+    --HTMLExporter.theme=dark \
+    --no-prompt \
+    "$nb"
+  mkdir -p "${html_dst%/*}"
+  chmod u+w "$html_dst" || :
+  mv "$html" "$html_dst"
+  chmod -w "$html_dst"
+}
+
+check-syntax() {
+  # Check syntax:
+  python -m py_compile "$py" || exit $?
+}
+
+remove-excution-count() {
+  sed -E -i.bak -e 's~^( *"execution_count.":)[^,]*(.*)~\1 null\2~' "$nb"
+  if ! jq -e < "$nb" >/dev/null
+  then
+    mv "$nb_bak" "$nb"
+    exit 9
+  else
+    rm -f "$nb_bak"
+  fi
+}
+
+######################
+
+cmd-setup() { #: setup venv/
+set -x
+  [[ -d "venv" ]] || python3.13 -m venv venv
+  . venv/bin/activate
+  pip install -r requirements.txt
+}
+
+cmd-convert-to-py() {  #: convert notebooks to py
+  each-ipynb ipynb-to-py
+  each-ipynb check-syntax
+}
+
+cmd-convert-to-html() { # convert notebooks to html
+  each-ipynb ipynb-to-html
+}
+
+cmd-check-syntax() { # check syntax of all *.py files
+  set -ex
+  each-ipynb check-syntax
+}
+
+cmd-precommit() {
+  set -e
+  each-ipynb ipynb-clear-output
+  each-ipynb remove-excution-count
+  each-ipynb ipynb-to-py
+  each-ipynb check-syntax
+  each-ipynb ipynb-to-html
+}
+
+cmd-help() { #: show help
+  sed -nE -e 's~^cmd-([^(]+)[^#]+#:(.*)$~\1 \2~p' "$0"
+}
+
+main() {
+  cmd="$1"; shift
+  cmd_args=()
+  for cmd_arg in "$@"
+  do
+    case "$cmd_arg"
+    in
+      *=*) declare "$cmd_arg" ;;
+      *)   cmd_args+=("$cmd_arg")
+    esac
+  done
+  "cmd-${cmd:-help}" "${cmd_args[@]}"
+}
+
+main "$@"
