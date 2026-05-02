@@ -50,7 +50,7 @@ ipynb-clear-output() {
 ipynb-to-py() {
   mkdir -p "$(dirname "$py")"
   ipynb-py-convert "$nb" "$py"
-  sed -i.bak -E -e '/^# %%/d' -e 's/^%/# %/' "$py"
+  sed -i -E -e '/^# %%/d' -e 's/^%/# %/' "$py"
   echo "" >> "$py"
   wc -l "$py"
 }
