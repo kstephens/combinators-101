@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
 base_dir="$(realpath "$(dirname "$0")/..")"
+lib_dir="${base_dir}/lib"
 gen_dir="${base_dir}/gen"
-export PYTHONPATH="${base_dir}:${gen_dir}"
+set -x
+export PYTHONPATH="${base_dir}:${lib_dir}:${gen_dir}"
+set +x
 
 get-ipynb-files() {
   cat <<EOF
@@ -30,7 +33,7 @@ each-ipynb() {
 
 set-vars() {
   : "${nb:?}"
-  py="${nb%.*}.py"
+  py="${gen_dir}/${nb%.*}.py"
   html="${nb%.*}.html"
   html_dst="html/$html"
   nb_bak="$nb.bak"

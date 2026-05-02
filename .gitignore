@@ -2,3 +2,5 @@
 *.bak
 /tmp/
 __pycache__
+.vscode
+/gen/
