@@ -143,19 +143,16 @@ def doseq(s):
 ####################################################
 
 
-def concat2(a, b):
-    a, b = seq(a), seq(b)
-    if empty(a) and empty(b):
-        return Empty
-    elif empty(b):
-        return a
-    return ConcatSeq(a, b)
-
-
 def concat(a, *seqs):
+    def concat2(a, b):
+        if empty(a) and empty(b):
+            return Empty
+        elif empty(b):
+            return a
+        return ConcatSeq(a, b)
     for s in seqs:
-        a = concat2(a, s)
-    return a
+        a = concat2(seq(a), s)
+    return seq(a)
 
 
 class ConcatSeq(Seq):
@@ -237,6 +234,13 @@ class Lazy(Seq):
         pass
 
 
+class LazyF(Lazy):
+    def __init__(self, f):
+        self._f = f
+    def self._realize():
+        return self._f()
+
+
 ####################################################
 # Python iterable compatibility
 
@@ -292,7 +296,7 @@ class IteratorSeq(Lazy):
     def _realize(self):
         try:
             val = next(self._itr)
-            ic(val)
+            # ic(val)
             return cons(val, IteratorSeq(self._itr))
         except StopIteration:
             self._itr = None
@@ -333,6 +337,66 @@ class Reduce(Lazy):
     def _realize(self):
         f, init, s = self._cache
         return cons(f(init, first(s)), reduce(f, init, rest(s)))
+
+
+####################################################
+
+
+def drop(s, n):
+    s = seq(s)
+    return Empty if empty(s) else Drop(s, n)
+
+
+class Drop(Lazy):
+    def __init__(self, s, n):
+        self._s, self._n = s, n
+
+    def _realize(self):
+        while self._n:
+            self._n -= 1
+            self._s = next(self._s)
+        return self._s
+
+
+def take(s, n):
+    s = seq(s)
+    return Empty if empty(s) else Take(s, n)
+
+
+class Take(Lazy):
+    def __init__(self, s, n):
+        self._s, self._n = s, n
+
+    def _realize(self):
+        head = tail = cons(nil, Empty)
+        while self._n:
+            tail = tail._rest = cons(first(self._s), tail)
+            self._s = rest(self._s)
+            self._n -= 1
+        self._s = nil
+        return rest(head)
+
+
+def repeat(a, *b):
+    if b:
+        n, s = a, *b
+    else:
+        n, s = None, a
+    return Empty if empty(s) else Repeat(s, s, n)
+
+class Repeat(Seq):
+    def __init__(self, h, n, s, i):
+        self._h, self._n = h, n
+        self._s, self._i = s, i
+
+    def first(self):
+        return first(self._s)
+
+    def next(self):
+        if empty(self._s) or self._i <= 0:
+            return Repeat(self._h, self._h, self._n, self._n)
+        return Repeat(self._j, self)
+
 
 
 ####################################################

@@ -35,3 +35,5 @@ View the notebooks:
 ```bash
 open html/*/*.html
 ```
+
+https://stackoverflow.com/questions/16739290/composing-functions-in-python
