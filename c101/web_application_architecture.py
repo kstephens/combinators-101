@@ -1,5 +1,6 @@
 # %%capture import_io
 from c101.helpers import *
+from c101.combinators import trace
 
 """
 # Web Application Architecture
@@ -144,7 +145,11 @@ def decode_content(app: App, decoder: Decoder, content_types=None, strict=False)
         if strict and content_types and content_type not in content_types:
             msg = f"Unexpected Content-Type {content_type!r} : expected: {content_types!r} : "
             return 400, {"Content-Type": 'text/plain'}, (msg,)
-        req["req.data"] = decoder(req["req.content"])
+        try:
+            req["req.data"] = decoder(req["req.content"])
+        except Exception as exc:
+            msg = f"decode : {content_types!r} : {exc!r}"
+            return 400, {"Content-Type": 'text/plain'}, (msg,)
         return app(req)
     return decoding_content
 
@@ -153,12 +158,17 @@ def encode_content(app: App, encoder: Encoder, content_type="text/plain") -> App
     "Encodes body with encoder.  Sets Content-Type."
     def encoding_content(req: Req) -> Res:
         status, headers, body = app(req)
-        content = "".join(map(encoder, body))
-        headers |= {
-            "Content-Type": content_type,
-            "Content-Length": len(content),
-        }
-        return status, headers, [content]
+        try:
+            content = "".join(map(encoder, body))
+            headers |= {
+                "Content-Type": content_type,
+                "Content-Length": len(content),
+            }
+            return status, headers, [content]
+        except Exception as exc:
+            msg = f"encode : {content_type!r} : failed : {exc!r}"
+            return 400, {"Content-Type": 'text/plain'}, (msg,)
+
     return encoding_content
 
 
@@ -186,6 +196,7 @@ def encode_json(app: App, *args, **kwargs) -> App:
 """
 
 def http_request(app: App) -> App:
+    "Returns a HTTP request processor."
     def http_request(req):
         req_io = req["req.stream"]
         request_method, path_info, server_protocol = req_io.readline().split(" ", 3)
@@ -204,6 +215,7 @@ def http_request(app: App) -> App:
     return http_request
 
 def http_response(app: App) -> App:
+    "Returns a HTTP response processor."
     def http_response(req):
         status, headers, body = app(req)
         res_io = req['res.stream']
@@ -214,10 +226,18 @@ def http_response(app: App) -> App:
         for chunk in body:
             if callable(chunk):
                 chunk(res_io)
-            res_io.write(chunk)
+            else:
+                res_io.write(chunk)
     return http_response
 
-req_str = """\
+def http_request_str(app, res_io=sys.stdout):
+    "Demo helper"
+    def http(req_str: str):
+        req = {"req.stream": StringIO(req_str), "res.stream": res_io}
+        app(req)
+    return http
+
+req = """\
 POST / HTTP/1.1
 Host: hello.world.com
 Accept: */*
@@ -225,10 +245,7 @@ Content-Type: text/plain
 
 Are you there?
 """
-req_io = StringIO(req_str)
-res_io = sys.stdout
-app = app_comp(hello_world_app, http_request, http_response)
-req = {"req.stream": req_io, "res.stream": res_io}
+app = app_comp(hello_world_app, http_request, http_response, http_request_str)
 app(req)
 
 
@@ -236,17 +253,10 @@ app(req)
 ## Simple App Handles JSON!
 """
 
-def http_request_str(app):
-    def http(req_str: str):
-        req = {"req.stream": StringIO(req_str), "res.stream": res_io}
-        app(req)
-    return http
 
 app = app_comp(something_useful_app, decode_json, encode_json, read_input, capture_exception, http_request, http_response, http_request_str)
-res_io = sys.stdout
 
-
-req_str = """\
+req = """\
 POST / HTTP/1.1
 Host: hello.world.com
 Accept: */*
@@ -254,9 +264,13 @@ Content-Type: application/json
 
 [2, 3]
 """
-app(req_str)
+app(req)
 
-req_str = """\
+"""
+## Content Decoding Errors
+"""
+
+req = """\
 POST / HTTP/1.1
 Host: hello.world.com
 Accept: */*
@@ -264,9 +278,13 @@ Content-Type: application/json
 
 Invalid Json
 """
-app(req_str)
+app(req)
 
-req_str = """\
+"""
+## Application Failure
+"""
+
+req = """\
 POST / HTTP/1.1
 Host: hello.world.com
 Accept: */*
@@ -274,7 +292,7 @@ Content-Type: application/json
 
 2
 """
-app(req_str)
+app(req)
 
 """
 ----

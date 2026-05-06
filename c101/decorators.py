@@ -1,3 +1,4 @@
+# %%capture import_io
 from typing import Callable
 from c101.helpers import *
 from c101.combinators import trace

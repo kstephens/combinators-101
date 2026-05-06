@@ -1,3 +1,4 @@
+# %%capture import_io
 from c101.helpers import *
 import operator as op
 import inspect

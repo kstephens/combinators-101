@@ -2,6 +2,7 @@
 from c101.helpers import *
 import c101.helpers
 from c101.combinators_101 import *
+from c101.combinators import trace
 from functools import reduce
 map = c101.helpers.map_
 

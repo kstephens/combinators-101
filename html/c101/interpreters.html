@@ -7821,6 +7821,7 @@ a.anchor-link {
 <span class="kn">from</span><span class="w"> </span><span class="nn">c101.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">c101.helpers</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">c101.combinators_101</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">c101.combinators</span><span class="w"> </span><span class="kn">import</span> <span class="n">trace</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
 <span class="nb">map</span> <span class="o">=</span> <span class="n">c101</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">map_</span>
 </pre></div>
@@ -7872,17 +7873,17 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre><span style="color: rgb(40,180,40)">⇢ </span>parse('2')
-<span style="color: rgb(120,120,255)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">2</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">2</span>
 <span style="color: rgb(40,180,40)">⇢ </span>eval([], 2)
-<span style="color: rgb(120,120,255)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">[2]</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">[2]</span>
 <span style="color: rgb(40,180,40)">⇢ </span>parse('3')
-<span style="color: rgb(120,120,255)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">3</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">3</span>
 <span style="color: rgb(40,180,40)">⇢ </span>eval([2], 3)
-<span style="color: rgb(120,120,255)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">[2, 3]</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">[2, 3]</span>
 <span style="color: rgb(40,180,40)">⇢ </span>parse('mul')
-<span style="color: rgb(120,120,255)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">&lt;built-in function mul&gt;</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">&lt;built-in function mul&gt;</span>
 <span style="color: rgb(40,180,40)">⇢ </span>eval([2, 3], &lt;built-in function mul&gt;)
-<span style="color: rgb(120,120,255)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">[6]</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">[6]</span>
 </pre>
 </div>
 </div>
@@ -7913,25 +7914,25 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre><span style="color: rgb(40,180,40)">⇢ </span>parse('2')
-<span style="color: rgb(120,120,255)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">2</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">2</span>
 <span style="color: rgb(40,180,40)">⇢ </span>eval([], 2)
-<span style="color: rgb(120,120,255)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">[2]</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">[2]</span>
 <span style="color: rgb(40,180,40)">⇢ </span>parse('3')
-<span style="color: rgb(120,120,255)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">3</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">3</span>
 <span style="color: rgb(40,180,40)">⇢ </span>eval([2], 3)
-<span style="color: rgb(120,120,255)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">[2, 3]</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">[2, 3]</span>
 <span style="color: rgb(40,180,40)">⇢ </span>parse('5')
-<span style="color: rgb(120,120,255)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">5</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">5</span>
 <span style="color: rgb(40,180,40)">⇢ </span>eval([2, 3], 5)
-<span style="color: rgb(120,120,255)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">[2, 3, 5]</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">[2, 3, 5]</span>
 <span style="color: rgb(40,180,40)">⇢ </span>parse('add')
-<span style="color: rgb(120,120,255)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">&lt;built-in function add&gt;</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">&lt;built-in function add&gt;</span>
 <span style="color: rgb(40,180,40)">⇢ </span>eval([2, 3, 5], &lt;built-in function add&gt;)
-<span style="color: rgb(120,120,255)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">[2, 8]</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">[2, 8]</span>
 <span style="color: rgb(40,180,40)">⇢ </span>parse('mul')
-<span style="color: rgb(120,120,255)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">&lt;built-in function mul&gt;</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">&lt;built-in function mul&gt;</span>
 <span style="color: rgb(40,180,40)">⇢ </span>eval([2, 8], &lt;built-in function mul&gt;)
-<span style="color: rgb(120,120,255)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">[16]</span>
+<span style="color: rgb(40,180,40)">⇢ ╰╴</span> <span style="color: rgb(120,120,255)">[16]</span>
 </pre>
 </div>
 </div>

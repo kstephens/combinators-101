@@ -140,42 +140,7 @@ def str_limit(s, max_len):
 def format_args(name, args, kwargs):
     return f"{name}(" + ', '.join([repr(x) for x in args] + [f"{k!r}={v!r}" for k, v in kwargs.items()]) + ")"
 
-#####################################
-
-color_ = "\033[0m"
-color_r = "\033[38;2;200;50;50m"
-color_g = "\033[38;2;40;180;40m"
-color_b = "\033[38;2;120;120;255m"
-trace_indent = 0                                             # <-- GLOBAL STATE
-
-def trace(f: Callable, name: str | None = None) -> Callable:
-    "Wrap a function that logs input and output."
-    name = name or f.__name__                                # <-- LOCAL STATE
-    def g(*args, **kwargs):                                  # <-- COMPOSITION
-        global trace_indent                                  # <-- GLOBAL STATE
-        ind = f"\u21e2 {"\u2502 " * trace_indent}"
-        print(f"{color_g}{ind}{color_}{format_args(name, args, kwargs)}")
-        try:
-            # Increase indent:
-            trace_indent += 1
-            result = f(*args, **kwargs)                      # <--- APPLICATION
-        except Exception as exc:
-            print(f"{color_r}{ind}\u2570\u2574\u29b8 {exc!r}{color_}")
-            raise exc
-        finally:
-            # Decrease indent:
-            trace_indent -= 1
-        print(f"{color_b}{ind}\u2570\u2574{color_} {color_b}{result!r}{color_}")
-        return result                                        # <--- RESULT
-    return g                                                 # <--- CLOSURE
-
 ####################################
-
-
-def re_pred(pat: str, re_func: Callable = re.search) -> Predicate:
-  'Returns a predicate that matches a regular expression.'
-  rx = re.compile(pat)
-  return lambda x: re_func(rx, str(x)) is not None
 
 
 def http_status_line(code: int) -> str:
